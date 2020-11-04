@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<web-app version="4.0" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee                       http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd">
+<display-name>Test project</display-name>
+	<welcome-file-list>
+		<welcome-file>hello.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+<servlet>
+    <servlet-name>regCheck</servlet-name>
+    <servlet-class>projectFiles.regCheck</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>regCheck</servlet-name>
+    <url-pattern>/regCheck</url-pattern>  
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>Login</servlet-name>
+    <servlet-class>projectFiles.Login</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>Login</servlet-name>
+    <url-pattern>/Login</url-pattern>  
+</servlet-mapping>
+
+<resource-env-ref>
+    <resource-env-ref-name>jdbc/yourdb</resource-env-ref-name>
+    <resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>
+</resource-env-ref>
+
+</web-app>
