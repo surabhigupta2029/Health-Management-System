@@ -46,7 +46,7 @@ public class Login extends HttpServlet {
 		}
 		else
 		{
-			RequestDispatcher req = request.getRequestDispatcher("Register_4.jsp");
+			RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
 			req.forward(request, response);
 		}
 	}
