@@ -3,6 +3,7 @@ package projectFiles;
 import java.io.IOException;
 
 import java.io.PrintWriter;
+import java.sql.SQLException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -14,13 +15,14 @@ import javax.servlet.http.HttpServletResponse;
 public class regCheck extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	DBManager rManager = new DBManager();
-	String sql = "CREATE TABLE REGISTRATIONTWO " +
+	String dbname = "REGISTRATION";
+	String sql = "CREATE TABLE " + dbname + " " +
             "(id INTEGER not NULL, " +
             " first VARCHAR(255), " + 
             " last VARCHAR(255), " + 
-            " address INTEGER, " +
             " username VARCHAR(25), " +
             " password VARCHAR(25), " +
+            " address INTEGER, " +
             " contact INTEGER, " +
             " PRIMARY KEY ( id ))"; 
 
@@ -40,10 +42,17 @@ public class regCheck extends HttpServlet {
 			RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
 			req.include(request, response);
 		} else {
-			rManager.createTable(sql, member);
-			String result = rManager.insert(member);
+			//rManager.createTable(sql, member);
+			//String result = rManager.insert(member);
+
+			try {
+				rManager.insert(member);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			//rManager.print();
-			response.getWriter().print(result);
+			//response.getWriter().print(result);
 		}
 	}
 } // end of class

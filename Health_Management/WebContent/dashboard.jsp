@@ -31,6 +31,11 @@
 					<h2>Welcome</h2>
 					<h2>Personal Dashboard</h2>
 				</div> <%-- <a>Welcome   <% out.println(username); %> User!!!! You have logged in.</a></td></tr> --%>
+				
+				<div class="buttonsContainer">
+				<a href="medicationNote.jsp" class="medButton">Create medication note</a>
+				
+				</div>
 	</table>
 </body>
 </html>

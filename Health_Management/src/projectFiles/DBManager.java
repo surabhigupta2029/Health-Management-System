@@ -32,7 +32,7 @@ public class DBManager {
 		Statement stmt = null;
 		Connection c = null;
 		c = getConnection();
-		
+
 		try {
 			stmt = c.createStatement();
 		} catch (SQLException e) {
@@ -41,37 +41,32 @@ public class DBManager {
 		}
 		executeSQL(stmt, sql);
 
-/*
-		sql = "CREATE TABLE REGISTRATION " +
-                "(id INTEGER not NULL, " +
-                " first VARCHAR(255), " + 
-                " last VARCHAR(255), " + 
-                " age INTEGER, " + 
-                " PRIMARY KEY ( id ))"; 
+		/*
+		 * sql = "CREATE TABLE REGISTRATION " + "(id INTEGER not NULL, " +
+		 * " first VARCHAR(255), " + " last VARCHAR(255), " + " age INTEGER, " +
+		 * " PRIMARY KEY ( id ))";
+		 * 
+		 * executeSQL(stmt, sql);
+		 * 
+		 * System.out.println("Created Table\n\n\n\n");
+		 * 
+		 * //test put something in the table sql = "INSERT INTO REGISTRATION " +
+		 * "VALUES (200, 'Sam', 'G', 16)"; executeSQL(stmt, sql);
+		 * System.out.println("Insert Entry in Table\n\n\n\n");
+		 * 
+		 */
+//		String resInsert = insert(member);
+//		executeSQL(stmt, resInsert);
 
-		executeSQL(stmt, sql);
-		
-				System.out.println("Created Table\n\n\n\n");
-
-		//test put something in the table
-		sql = "INSERT INTO REGISTRATION " +
-                "VALUES (200, 'Sam', 'G', 16)";
-		executeSQL(stmt, sql);
-		System.out.println("Insert Entry in Table\n\n\n\n");
-
- */
-		String resInsert = insert(member);
-		executeSQL(stmt, resInsert);
-
-		//fetch that entry from the table
-		//sql = "SELECT id, first, last, age FROM REGISTRATION";
+		// fetch that entry from the table
+		// sql = "SELECT id, first, last, age FROM REGISTRATION";
 //		String strsql = "SELECT id, first, last, address, username, password, contact FROM REGISTRATIONTWO";
 //		ResultSet rs = executeSQLResult(stmt, strsql);
-	    
-		//System.out.println("Fetch Entry in Table\n\n\n\n");
 
-		//print each record
-	    //STEP 5: Extract data from result set
+		// System.out.println("Fetch Entry in Table\n\n\n\n");
+
+		// print each record
+		// STEP 5: Extract data from result set
 //	    try {
 //	    	while(rs.next()){
 //	         //Retrieve by column name
@@ -102,20 +97,20 @@ public class DBManager {
 //	      //Handle errors for Class.forName
 //	      e.printStackTrace();
 //	   }
-	   
-	    try {
+
+		try {
 			c.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void print() {
 		Statement stmt = null;
 		Connection c = null;
 		c = getConnection();
-		
+
 		try {
 			stmt = c.createStatement();
 		} catch (SQLException e) {
@@ -124,52 +119,51 @@ public class DBManager {
 		}
 		String strsql = "SELECT id, first, last, address, username, password, contact FROM REGISTRATIONTWO";
 		ResultSet rs = executeSQLResult(stmt, strsql);
-	    
+
 		System.out.println("Fetch Entry in Table\n\n\n\n");
 
-		//print each record
-	    //STEP 5: Extract data from result set
-	    try {
-	    	while(rs.next()){
-	         //Retrieve by column name
-	         int id  = rs.getInt("id");
-	         int age = rs.getInt("age");
-	         String first = rs.getString("first");
-	         String last = rs.getString("last");
-	         String username = rs.getString("username");
-	         String password = rs.getString("password");
-	         String address = rs.getString("address");
-	         String contact = rs.getString("contact");
+		// print each record
+		// STEP 5: Extract data from result set
+		try {
+			while (rs.next()) {
+				// Retrieve by column name
+				int id = rs.getInt("id");
+				int age = rs.getInt("age");
+				String first = rs.getString("first");
+				String last = rs.getString("last");
+				String username = rs.getString("username");
+				String password = rs.getString("password");
+				String address = rs.getString("address");
+				String contact = rs.getString("contact");
 
-	         //Display values
-	         System.out.print("ID: " + id);
-	         System.out.print(", Age: " + age);
-	         System.out.print(", First: " + first);
-	         System.out.println(", username: " + username);
-	         System.out.println(", password: " + password);
-	         System.out.println(", address: " + address);
-	         System.out.println(", contact: " + contact);
+				// Display values
+				System.out.print("ID: " + id);
+				System.out.print(", Age: " + age);
+				System.out.print(", First: " + first);
+				System.out.println(", username: " + username);
+				System.out.println(", password: " + password);
+				System.out.println(", address: " + address);
+				System.out.println(", contact: " + contact);
 
-	      }
-	      rs.close();
-	   }catch(SQLException se){
-	      //Handle errors for JDBC
-	      se.printStackTrace();
-	   }catch(Exception e){
-	      //Handle errors for Class.forName
-	      e.printStackTrace();
-	   }
-	   
-	    
-	    try {
+			}
+			rs.close();
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		}
+
+		try {
 			c.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	//execute sql calls where no return data is required
+
+	// execute sql calls where no return data is required
 	public void executeSQL(Statement stmt, String sql) {
 		try {
 			stmt.executeUpdate(sql);
@@ -178,9 +172,8 @@ public class DBManager {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	//execute sql calls where no return data is required
+
+	// execute sql calls where no return data is required
 	public ResultSet executeSQLResult(Statement stmt, String sql) {
 		try {
 			return stmt.executeQuery(sql);
@@ -190,20 +183,43 @@ public class DBManager {
 		}
 		return null;
 	}
-	
-public String insert(regMember member) {
-	String sql = "";
-	String first = member.getFirstName();
-	String last = member.getLastName();
-	String username = member.getUsername();
-	String password = member.getPassword();
-	String address = member.getAddress();
-	String contact = member.getContact();
-	
-	sql = "INSERT INTO REGISTRATION " +
-            "VALUES (" + first+"," + last + "," + username + "," + password + "," + address + "," + contact+ ")";
-	return sql;
-}
+
+	public void insert(regMember member) throws SQLException {
+		Statement stmt = null;
+		Connection c = null;
+		c = getConnection();
+
+		try {
+			stmt = c.createStatement();
+			String sql = "";
+			String first = member.getFirstName();
+			String last = member.getLastName();
+			String username = member.getUsername();
+			String password = member.getPassword();
+			String emailaddress = member.getAddress();
+			int addressInt = Integer.parseInt(emailaddress);
+			String contact = member.getContact();
+			int contactInt = Integer.parseInt(contact);
+
+			System.out.println(first);
+//			sql = "INSERT INTO REGISTRATIONTWO (first_name, last_name, addrress, username, password, contact) "
+//					+ "VALUES ("first + "," + last + "," + address + "," + username + "," + password + "," + contact
+//					+ ")";
+//			sql = "INSERT INTO REGISTRATIONTWO (id ,first_name, last_name, addrress, username, password, contact) "
+//					+ "VALUES " + "(" + 1 + "," + first + "," + last + "," +  address + "," + username + "," + password + "," + contact+ ")";
+//			stmt.executeUpdate("INSERT INTO REGISTRATIONTWO (id,first, last, address, username, password, contact) "
+//					+ "VALUES (1,'first', 'last', 123,'username','password',1234567)");
+			stmt.executeUpdate("INSERT INTO REGISTRATIONTWO (id,first, last, address, username, password, contact) "
+					+ "VALUES (1,'first', 'last', 123,'username','password',1234567)");
+			//stmt.executeUpdate(sql);
+
+			c.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// executeSQL(stmt, sql);
+	}
 //	public String insert(regMember member) {
 //		Connection con = getConnection();
 //		String result = "yeees";
