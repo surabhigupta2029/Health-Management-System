@@ -26,6 +26,25 @@
     <url-pattern>/Login</url-pattern>  
 </servlet-mapping>
 
+<servlet>
+<servlet-name>MedicationManager</servlet-name>
+<servlet-class>projectFiles.MedicationManager</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>MedicationManager</servlet-name>
+<url-pattern>/MedicationManager</url-pattern>  
+</servlet-mapping>
+
+<servlet>
+<servlet-name>AppointmentManager</servlet-name>
+<servlet-class>projectFiles.AppointmentManager</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>AppointmentManager</servlet-name>
+<url-pattern>/AppointmentManager</url-pattern>  
+</servlet-mapping>
+
+
 <resource-env-ref>
     <resource-env-ref-name>jdbc/yourdb</resource-env-ref-name>
     <resource-env-ref-type>javax.sql.DataSource</resource-env-ref-type>

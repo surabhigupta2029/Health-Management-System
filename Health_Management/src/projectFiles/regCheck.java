@@ -3,7 +3,9 @@ package projectFiles;
 import java.io.IOException;
 
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -44,13 +46,27 @@ public class regCheck extends HttpServlet {
 		} else {
 			//rManager.createTable(sql, member);
 			//String result = rManager.insert(member);
+			Statement stmt = null;
+			Connection c = null;
+			c = rManager.getConnection();
 
 			try {
-				rManager.insert(member);
+				stmt = c.createStatement();
+				stmt.executeUpdate("INSERT INTO REGISTRATIONTWO (first, last, emailaddress, username, password, contact) "
+						+ "VALUES ('" + first_name + "', '" + last_name + "','" + address + "','" + username + "','" + password + "'," + contact + ")");
+				c.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			RequestDispatcher req = request.getRequestDispatcher("login.jsp");
+			req.forward(request, response);
+//			try {
+//				rManager.insert(member);
+//			} catch (SQLException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			//rManager.print();
 			//response.getWriter().print(result);
 		}

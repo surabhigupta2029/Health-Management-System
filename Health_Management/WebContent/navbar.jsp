@@ -41,6 +41,8 @@ li a:hover {
 	<ul>
 		<li><a href="login.jsp" class="Lbutton">Login</a></li>
 		<li><a href="Register_1.jsp" class="Rbutton">Register</a></li>
+		<li><a href="aboutUs.jsp" class="AUbutton">About Us</a></li>
+		
 		<li style="float:right"><a href="logout.jsp">Logout</a></li>
 	</ul>
 </body>

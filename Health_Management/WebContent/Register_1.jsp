@@ -23,14 +23,14 @@
 				</tr>
 					<tr>
 					<td>Password</td>
-					<td><input type="text" name="password" /></td>
+					<td><input type="password" name="password" /></td>
 				</tr>
 				<tr>
 					<td>Address</td>
 					<td><input type="text" name="address" /></td>
 				</tr>
 				<tr>
-					<td>Phone Number</td>
+					<td>Emergency Contact</td>
 					<td><input type="text" name="contact" /></td>
 				</tr></table>
 			<input type="submit" value="Submit" name="submit"/></form>

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Connection;
 import java.sql.*;
+import java.util.*;
 
 /**
  * Servlet implementation class login
@@ -33,7 +34,14 @@ public class Login extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
-		response.getWriter().append("Served at: ").append(request.getContextPath());
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		String first_name = request.getParameter("first_name");
+		String last_name = request.getParameter("last_name");
+		String address = request.getParameter("address");
+		String contact = request.getParameter("contact");
+		System.out.println(username);
+		// response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 	/**
@@ -45,7 +53,12 @@ public class Login extends HttpServlet {
 		// TODO Auto-generated method stub
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
+		String first_name = request.getParameter("first_name");
+		String last_name = request.getParameter("last_name");
+		String address = request.getParameter("address");
+		String contact = request.getParameter("contact");
 		// System.out.println("in login.java");
+		List<RegistrationBean> list = new ArrayList<RegistrationBean>();
 
 		if (username.isEmpty() || password.isEmpty()) {
 			RequestDispatcher req = request.getRequestDispatcher("login.jsp");
@@ -61,6 +74,17 @@ public class Login extends HttpServlet {
 					String usernameDB = rs.getString("username");
 					String passwordDB = rs.getString("password");
 					if (usernameDB.equals(username) && password.equals(passwordDB)) {
+						// response.sendRedirect("dashboard.jsp?username=" + username);
+						RegistrationBean userDetail = new RegistrationBean();
+						userDetail.setFirstName(rs.getString("first"));
+						userDetail.setLastName(rs.getString("last"));
+						userDetail.setAddress(rs.getString("emailaddress"));
+						userDetail.setContact(rs.getString("contact"));
+
+						list.add(userDetail);
+						System.out.println(list.get(0).getFirstName());
+						request.setAttribute("list", list);
+						request.setAttribute("firstName", first_name);
 						RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
 						req.forward(request, response);
 						break;
