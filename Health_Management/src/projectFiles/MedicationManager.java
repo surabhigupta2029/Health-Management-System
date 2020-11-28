@@ -15,6 +15,7 @@ public class MedicationManager extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	DBManager medManager = new DBManager();
+	String username = "";
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -46,27 +47,56 @@ public class MedicationManager extends HttpServlet {
 		} else if (request.getParameter("Saturday") != null) {
 			day = "Saturday";
 		}
+
+		String username = request.getParameter("username");
+
 		try {
 
 			String reqDay = "";
 			Connection conn = medManager.getConnection();
 			Statement st = conn.createStatement();
-			String query = "SELECT * FROM MEDTABLE";
-			ResultSet rs = st.executeQuery(query);
-			TreeMap<Integer, List<String>> result = new TreeMap<Integer, List<String>>();
-			List<String> listArg = new ArrayList<String>();
+
+			// get record for this username only
+			String appQuery = "SELECT * FROM REGISTRATIONTWO where username=" + username;
+			ResultSet as = st.executeQuery(appQuery);
+			List<String> idList = new ArrayList<String>();
+
+			System.out.println("1 iddd while " + username);
+			// pick Medication Ids for this username
+			while (as.next()) {
+				String m = as.getString("M1");
+				if (!as.wasNull()) { idList.add(m); }
+				m = as.getString("M2");
+				if (!as.wasNull()) { idList.add(m); }
+				m = as.getString("M3");
+				if (!as.wasNull()) { idList.add(m); }
+			}
+
+			System.out.println("iddd " + idList);
+
+			//From medtable pick the exact records for this patient
+			//check -
+			String medQuery = "SELECT * FROM MEDTABLE";
+			ResultSet rs = st.executeQuery(medQuery);
+			TreeMap<Integer, List<MedicationBean>> result = new TreeMap<Integer, List<MedicationBean>>();
+			List<MedicationBean> medList = new ArrayList<MedicationBean>();
 			int idKey = 1;
 
 			while (rs.next()) {
 				reqDay = rs.getString("day");
+				String reqID = rs.getString("id");
 				if (reqDay.equals(day)) {
-					listArg.add(rs.getString("id"));
-					listArg.add(rs.getString("medicationName"));
-					listArg.add(rs.getString("dose"));
-					listArg.add(rs.getString("time"));
-					listArg.add(rs.getString("notes"));
-					result.put(idKey, listArg);
-					idKey++;
+					if (idList.contains(reqID)) {
+						MedicationBean medDetails = new MedicationBean();
+						medDetails.setID(rs.getString("id"));
+						medDetails.setMedicationName(rs.getString("medicationName"));
+						medDetails.setDose(rs.getString("dose"));
+						medDetails.setTime(rs.getString("time"));
+						medDetails.setNotes(rs.getString("notes"));
+						medList.add(medDetails);
+						result.put(idKey, medList);
+						idKey++;
+					}
 				}
 
 			}
@@ -75,11 +105,13 @@ public class MedicationManager extends HttpServlet {
 			RequestDispatcher rd = request.getRequestDispatcher("dashboard.jsp");
 			rd.forward(request, response);
 
+			conn.close(); // tbd
+
 			// response.getWriter().append("Served at: ").append(request.getContextPath());
 
 		} catch (Exception e) {
 
-			System.err.println("Got an exception! ");
+			System.err.println("Med Manager Got an exception! ");
 			System.err.println(e.getMessage());
 		}
 		// TODO Auto-generated method stub
@@ -90,6 +122,7 @@ public class MedicationManager extends HttpServlet {
 	 *      response)
 	 */
 	int id = 1;
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
@@ -98,6 +131,7 @@ public class MedicationManager extends HttpServlet {
 		String time = request.getParameter("timing");
 		String day = request.getParameter("day");
 		String notes = request.getParameter("notes");
+		username = request.getParameter("username");
 
 		if (medicationName.isEmpty() || dose.isEmpty() || time.isEmpty() || notes.isEmpty() | day.isEmpty()) {
 			RequestDispatcher req = request.getRequestDispatcher("medicationNote.jsp");
@@ -108,10 +142,54 @@ public class MedicationManager extends HttpServlet {
 			c = medManager.getConnection();
 
 			try {
+				System.out.println("1 Hello it is ");
 				stmt = c.createStatement();
-				stmt.executeUpdate("INSERT INTO MEDTABLE (medicationName, dose, time, day, notes) "
-						+ "VALUES ('" + medicationName + "'," + dose + "," + time + ",'" + day + "','" + notes + "')");
+				stmt.executeUpdate(
+						"INSERT INTO MEDTABLE (medicationName, dose, time, day, notes) " + "VALUES ('" + medicationName
+								+ "'," + dose + "," + time + ",'" + day + "','" + notes + "')",
+						Statement.RETURN_GENERATED_KEYS);
+
+				// get the ID of the row in medtable where insert took place.
+				ResultSet tmpR = stmt.getGeneratedKeys();
+				int medId = 0;
+				if (tmpR.next()) {
+					medId = tmpR.getInt(1);
+				}
+
+				// insert this id in REGISTRATIONTWO table
+				// String username = (String) request.getAttribute("username");
+				System.out.println("2 hello it is " + username + " " + medId);
+				String query = "SELECT * FROM REGISTRATIONTWO WHERE username=" + username;
+
+				ResultSet tmpR2 = stmt.executeQuery(query);
+
+				// find the empty medicine column for this user. there will be only one row for
+				// this user.
+				String updateString = "";
+				if (tmpR2.next()) {
+					if (tmpR2.getString("M1") == null) {
+						updateString = "M1=" + medId;
+					} else if (tmpR2.getString("M2") == null) {
+						updateString = "M2=" + medId;
+					} else if (tmpR2.getString("M3") == null) {
+						updateString = "M3=" + medId;
+					}
+				}
+
+				// execute update command to insert this medication id in the registrationtwo
+				// table.
+				stmt.executeUpdate("UPDATE REGISTRATIONTWO SET " + updateString + " WHERE username='" + username + "'");
+
+				/*
+				 * int i = 0; while (tmpR.next()) { i += 1; System.out.println("2 Hello it is "
+				 * + tmpR.getInt(i)); }
+				 */
+
+				// stmt = c.createStatement();
+				// ResultSet tmpRs = stmt.executeQuery("SELECT LAST_INSERT_ID() as last_id");
+				// System.out.println("3 Hello it is " + tmpRs.getString("last_id"));
 				c.close();
+
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

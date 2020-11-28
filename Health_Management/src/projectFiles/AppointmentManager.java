@@ -28,9 +28,60 @@ public class AppointmentManager extends HttpServlet{
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response, String day)
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		String appDay = "";
+		if (request.getParameter("Sunday") != null) {
+			appDay = "Sunday";
+		} else if (request.getParameter("Monday") != null) {
+			appDay = "Monday";
+		} else if (request.getParameter("Tuesday") != null) {
+			appDay = "Tuesday";
+		} else if (request.getParameter("Wednesday") != null) {
+			appDay = "Wednesday";
+		} else if (request.getParameter("Thursday") != null) {
+			appDay = "Thursday";
+		} else if (request.getParameter("Friday") != null) {
+			appDay = "Friday";
+		} else if (request.getParameter("Saturday") != null) {
+			appDay = "Saturday";
+		}
 		
+		List<AppointmentBean> appList = new ArrayList<AppointmentBean>();
+
+		try {
+
+			String reqDay = "";
+			Connection conn = appManager.getConnection();
+			Statement st = conn.createStatement();
+			String query = "SELECT * FROM APPTABLE";
+			ResultSet rs = st.executeQuery(query);
+			TreeMap<String, List<AppointmentBean>> appMap = new TreeMap<String, List<AppointmentBean>>();
+
+			while (rs.next()) {
+				reqDay = rs.getString("day");
+				if (reqDay.equals(appDay)) {
+					AppointmentBean appDetail = new AppointmentBean();
+					appDetail.setAppName(rs.getString("appName"));
+					appDetail.setTiming(rs.getString("timing"));
+					appDetail.setNotes(rs.getString("notes"));
+					appList.add(appDetail);
+					appMap.put(rs.getString("id"), appList);
+				}
+
+			}
+
+			request.setAttribute("appData", appMap);
+			RequestDispatcher rd = request.getRequestDispatcher("dashboard.jsp");
+			rd.forward(request, response);
+
+			// response.getWriter().append("Served at: ").append(request.getContextPath());
+
+		} catch (Exception e) {
+
+			System.err.println("Got an exception! ");
+			System.err.println(e.getMessage());
+		}
 	}
 
 	/**

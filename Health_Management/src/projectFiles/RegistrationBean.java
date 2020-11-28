@@ -4,6 +4,7 @@ public class RegistrationBean {
 	private String firstName, lastName, address;
 	private String contact;
 
+	//Getters
 	public String getFirstName() {
 		return firstName;
 	}
@@ -20,6 +21,7 @@ public class RegistrationBean {
 		return contact;
 	}
 
+	//Setters
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
