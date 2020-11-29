@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.*;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -52,6 +53,26 @@ public class regCheck extends HttpServlet {
 			Connection c = null;
 			c = rManager.getConnection();
 
+			boolean ispresent = false;
+			String existsQuery = "SELECT EXISTS(SELECT 1 FROM REGISTRATIONTWO WHERE username = '" + username + "')";
+			try {
+				stmt = c.createStatement();
+		        ResultSet resultSet = stmt.executeQuery(existsQuery);
+		        if(resultSet.next()){
+		        	System.out.println("Exists = " + resultSet.getInt(1));
+		            ispresent = true;
+		        }else{
+		        	ispresent = false;
+		        	request.setAttribute("alertMessage", "no");
+					RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
+		        }
+			} catch (SQLException e1) {
+				request.setAttribute("alertMessage", "no");
+				RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			
 			try {
 				stmt = c.createStatement();
 				stmt.executeUpdate("INSERT INTO REGISTRATIONTWO (first, last, emailaddress, username, password, contact) "

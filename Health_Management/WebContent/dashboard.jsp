@@ -74,138 +74,140 @@
 			Medication Note</a> <br> <a href="appNote.jsp" class="appButton">Create
 			Appointment Note</a>
 	</div>
+
 	<table style="with: 50%">
+		<tr>
+			<td>
+				<%--Retrieves medication notes from MEDTABLE --%> <%
+ 	try {
+ 	DBManager medManager = new DBManager();
+ 	Connection con = medManager.getConnection();
+ 	Statement st = con.createStatement();
+ 	ResultSet rs = st.executeQuery("SELECT * FROM MEDTABLE");
+ 	String javaday = "";
+ %>
+				<div class="buttonsContainer">
 
-		<%--Retrieves medication notes from MEDTABLE --%>
-		<%
-			try {
-			DBManager medManager = new DBManager();
-			Connection con = medManager.getConnection();
-			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("SELECT * FROM MEDTABLE");
-			String javaday = "";
-		%>
-		<div class="buttonsContainer">
+					<form action="MedicationManager?username=" +<%=username%>
+						method="get">
+						<input type="hidden" name="username" value=<%=username%> /> <input
+							type="submit" value="Sunday" name="Sunday" /> <input
+							type="submit" value="Monday" name="Monday" /> <input
+							type="submit" value="Tuesday" name="Tuesday" /> <input
+							type="submit" value="Wednesday" name="Wednesday" /> <input
+							type="submit" value="Thursday" name="Thursday" /> <input
+							type="submit" value="Friday" name="Friday" /> <input
+							type="submit" value="Saturday" name="Saturday" />
+					</form>
+				</div>
+				<table border=1 align=center style="text-align: center">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>MEDICATION NAME</th>
+							<th>DOSE (IN mg)</th>
+							<th>TIME</th>
+							<th>NOTES</th>
+						</tr>
+					</thead>
+					<tbody>
+						<%
+							int iterator = 0;
+						int displayKey = 1;
+						TreeMap<Integer, List<MedicationBean>> std = (TreeMap<Integer, List<MedicationBean>>) request.getAttribute("data");
+						Set<Map.Entry<Integer, List<MedicationBean>>> s = std.entrySet();
+						for (Map.Entry<Integer, List<MedicationBean>> entry : s) {
+							List<MedicationBean> medlist = entry.getValue();
+							String deleteID = medlist.get(iterator).getID();
+						%>
+						<tr>
+							<td><%=displayKey%></td>
+							<td><%=medlist.get(iterator).getMedicationName()%></td>
+							<td><%=medlist.get(iterator).getDose()%></td>
+							<td><%=medlist.get(iterator).getTime()%></td>
+							<td><%=medlist.get(iterator).getNotes()%></td>
+							<td><a href="deleteMedication.jsp?id=<%=deleteID%>&username=<%=username%>"><button
+										type="button" class="delete">Delete</button></a></td>
+						</tr>
+						<%
+							displayKey++;
+						iterator++;
+						}
+						st.close();
+						con.close();
+						} catch (Exception e) {
+						System.out.print(e.getMessage());
+						}
+						%>
+					</tbody>
+				</table>
+			</td>
+			<td></td>
+			<td>
+				<%--Retrieves appointment notes from APPTABLE --%> <%
+ 	try {
+ 	DBManager medManager = new DBManager();
+ 	Connection appCon = medManager.getConnection();
+ 	Statement appSt = appCon.createStatement();
+ 	ResultSet rs = appSt.executeQuery("SELECT * FROM APPTABLE");
+ 	String javaday = "";
+ %>
+				<div class="buttonsContainer">
 
-			<form action="MedicationManager?username=" +<%=username%>
-				method="get">
-				<input type="hidden" name="username" value=<%=username%> /> <input
-					type="submit" value="Sunday" name="Sunday" /> <input type="submit"
-					value="Monday" name="Monday" /> <input type="submit"
-					value="Tuesday" name="Tuesday" /> <input type="submit"
-					value="Wednesday" name="Wednesday" /> <input type="submit"
-					value="Thursday" name="Thursday" /> <input type="submit"
-					value="Friday" name="Friday" /> <input type="submit"
-					value="Saturday" name="Saturday" />
-			</form>
-		</div>
-		<table border=1 align=center style="text-align: center">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>MEDICATION NAME</th>
-					<th>DOSE (IN mg)</th>
-					<th>TIME</th>
-					<th>NOTES</th>
-				</tr>
-			</thead>
-			<tbody>
-				<%
-					int iterator = 0;
-				int displayKey = 1;
-				TreeMap<Integer, List<MedicationBean>> std = (TreeMap<Integer, List<MedicationBean>>) request.getAttribute("data");
-				Set<Map.Entry<Integer, List<MedicationBean>>> s = std.entrySet();
-				for (Map.Entry<Integer, List<MedicationBean>> entry : s) {
-					List<MedicationBean> medlist = entry.getValue();
-					String deleteID = medlist.get(iterator).getID();
-				%>
-				<tr>
-					<td><%=displayKey%></td>
-					<td><%=medlist.get(iterator).getMedicationName()%></td>
-					<td><%=medlist.get(iterator).getDose()%></td>
-					<td><%=medlist.get(iterator).getTime()%></td>
-					<td><%=medlist.get(iterator).getNotes()%></td>
-					<td><a href="deleteMedication.jsp?id=<%=deleteID%>"><button
-								type="button" class="delete">Delete</button></a></td>
-				</tr>
-				<%
-					displayKey++;
-				iterator++;
-				}
-				%>
-			</tbody>
-		</table>
-		<%
-		st.close();
-		con.close();
-		} catch (Exception e) {
-		System.out.print(e.getMessage());
-		}
-		%>
+					<form action="AppointmentManager" method="get">
+						<input type="submit" value="Sunday" name="Sunday" /> <input
+							type="submit" value="Monday" name="Monday" /> <input
+							type="submit" value="Tuesday" name="Tuesday" /> <input
+							type="submit" value="Wednesday" name="Wednesday" /> <input
+							type="submit" value="Thursday" name="Thursday" /> <input
+							type="submit" value="Friday" name="Friday" /> <input
+							type="submit" value="Saturday" name="Saturday" />
+					</form>
+				</div>
+				<table border=1 align=center style="text-align: center">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>APPOINTMENT NAME</th>
+							<th>TIME</th>
+							<th>NOTES</th>
+						</tr>
+					</thead>
+					<tbody>
+						<%
+							TreeMap<String, List<AppointmentBean>> appMap = (TreeMap<String, List<AppointmentBean>>) request
+								.getAttribute("appData");
+						Set<Map.Entry<String, List<AppointmentBean>>> s = appMap.entrySet();
+						int iterator = 0;
+						int displayKey = 1;
+						for (Map.Entry<String, List<AppointmentBean>> entry : s) {
+							List<AppointmentBean> applist = entry.getValue();
+						%>
+						<tr>
+							<td><%=displayKey%></td>
+							<td><%=applist.get(iterator).getAppName()%></td>
+							<td><%=applist.get(iterator).getTiming()%></td>
+							<td><%=applist.get(iterator).getNotes()%></td>
+							<td><a
+								href="deleteAppointment.jsp?idAppt=<%=entry.getKey()%>"><button
+										type="button" class="delete">Delete</button></a></td>
+						</tr>
+						<%
+							displayKey++;
+						iterator++;
+						}
+						%>
+					</tbody>
 
-		<%--Retrieves appointment notes from APPTABLE --%>
-		<%
-			try {
-			DBManager medManager = new DBManager();
-			Connection appCon = medManager.getConnection();
-			Statement appSt = appCon.createStatement();
-			ResultSet rs = appSt.executeQuery("SELECT * FROM APPTABLE");
-			String javaday = "";
-		%>
-		<div class="buttonsContainer">
-
-			<form action="AppointmentManager" method="get">
-				<input type="submit" value="Sunday" name="Sunday" /> <input
-					type="submit" value="Monday" name="Monday" /> <input type="submit"
-					value="Tuesday" name="Tuesday" /> <input type="submit"
-					value="Wednesday" name="Wednesday" /> <input type="submit"
-					value="Thursday" name="Thursday" /> <input type="submit"
-					value="Friday" name="Friday" /> <input type="submit"
-					value="Saturday" name="Saturday" />
-			</form>
-		</div>
-		<table border=1 align=center style="text-align: center">
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>APPOINTMENT NAME</th>
-					<th>TIME</th>
-					<th>NOTES</th>
-				</tr>
-			</thead>
-			<tbody>
-				<%
-					TreeMap<String, List<AppointmentBean>> appMap = (TreeMap<String, List<AppointmentBean>>) request
-						.getAttribute("appData");
-				Set<Map.Entry<String, List<AppointmentBean>>> s = appMap.entrySet();
-				int iterator = 0;
-				int displayKey = 1;
-				for (Map.Entry<String, List<AppointmentBean>> entry : s) {
-					List<AppointmentBean> applist = entry.getValue();
-				%>
-				<tr>
-					<td><%=displayKey%></td>
-					<td><%=applist.get(iterator).getAppName()%></td>
-					<td><%=applist.get(iterator).getTiming()%></td>
-					<td><%=applist.get(iterator).getNotes()%></td>
-					<td><a href="deleteAppointment.jsp?idAppt=<%=entry.getKey()%>"><button
-								type="button" class="delete">Delete</button></a></td>
-				</tr>
-				<%
-					displayKey++;
-				iterator++;
-				}
-				%>
-			</tbody>
-		</table>
-		<%
-		appSt.close();
-		appCon.close();
-		} catch (Exception e) {
-		System.out.print(e.getMessage());
-		}
-		%>
-
+				</table> <%
+ 	appSt.close();
+ appCon.close();
+ } catch (Exception e) {
+ System.out.print(e.getMessage());
+ }
+ %>
+			</td>
+		</tr>
 	</table>
 	<div class="medicationNotes"></div>
 

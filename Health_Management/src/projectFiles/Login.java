@@ -69,7 +69,7 @@ public class Login extends HttpServlet {
 			try {
 				Connection conn = lManager.getConnection();
 				Statement st = conn.createStatement();
-				String query = "SELECT * FROM REGISTRATIONTWO WHERE username="+username;
+				String query = "SELECT * FROM REGISTRATIONTWO WHERE username='"+username+"'";
 				ResultSet rs = st.executeQuery(query);
 
 				while (rs.next()) {

@@ -133,10 +133,10 @@ public class MedicationManager extends HttpServlet {
 		String notes = request.getParameter("notes");
 		username = request.getParameter("username");
 
-		if (medicationName.isEmpty() || dose.isEmpty() || time.isEmpty() || notes.isEmpty() | day.isEmpty()) {
-			RequestDispatcher req = request.getRequestDispatcher("medicationNote.jsp");
-			req.include(request, response);
-		} else {
+//		if (medicationName.isEmpty() || dose.isEmpty() || time.isEmpty() || notes.isEmpty() | day.isEmpty()) {
+//			RequestDispatcher req = request.getRequestDispatcher("medicationNote.jsp");
+//			req.include(request, response);
+//		} else {
 			Statement stmt = null;
 			Connection c = null;
 			c = medManager.getConnection();
@@ -197,6 +197,6 @@ public class MedicationManager extends HttpServlet {
 			RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
 			req.forward(request, response);
 		}
-	}
+	//}
 
 }

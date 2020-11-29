@@ -12,13 +12,34 @@
 	out.println("Welcome " + username);
 	%>
 	<form action="MedicationManager" method="post">
+		<table style="with: 50%">
+			<tr>
+				<td>Medication Name</td>
+				<td><input type="text" name="medicationName" required /></td>
+			</tr>
+			<tr>
+				<td>Dose (in milligrams)</td>
+				<td><input type="text" name="dose" required /></td>
+			</tr>
+			<tr>
+				<td>Time</td>
+				<td><input type="time" name="timing"
+					required /></td>
+			</tr>
+			<tr>
+				<td>Day</td>
+				<td><input type="text" name="day" required /></td>
+			</tr>
+			<tr>
+				<td>Notes/Special details</td>
+				<td><input type="text" name="notes" required/></td>
+			</tr>
 
-		Medication Name:<input type="text" name="medicationName" /><br />
-		Dose (in milligrams):<input type="text" name="dose" /><br /> Time:<input
-			type="time" name="timing" /><br /> Day:<input type="text"
-			name="day" /><br /> Notes/Special details:<input type="text"
-			name="notes" /><br /> <input type="hidden" name="username"
-			value="<%=username%>" /><br /> <input type="submit" value="Submit" />
+
+		</table>
+		<input type="hidden" name="username" value="<%=username%>" /> <br>
+		 <input type="submit" value="Submit" name="submit" />
+
 	</form>
 </body>
 </html>
