@@ -32,7 +32,7 @@ try {
 	st.executeUpdate("UPDATE REGISTRATIONTWO SET " + updateString +"NULL WHERE username='" + username + "'");
 
 	con.close();
-	RequestDispatcher rd = request.getRequestDispatcher("dashboard.jsp");
+	RequestDispatcher rd = request.getRequestDispatcher("medForm.jsp");
 	rd.forward(request, response);
 	System.out.println("Data Deleted Successfully!");
 } catch (Exception e) {

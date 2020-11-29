@@ -9,7 +9,6 @@
 <body>
 	<%
 		String username = request.getParameter("username");
-	out.println("Welcome " + username);
 	%>
 	<form action="MedicationManager" method="post">
 		<table style="with: 50%">

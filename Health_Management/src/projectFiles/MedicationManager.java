@@ -57,8 +57,8 @@ public class MedicationManager extends HttpServlet {
 			Statement st = conn.createStatement();
 
 			// get record for this username only
-			String appQuery = "SELECT * FROM REGISTRATIONTWO where username=" + username;
-			ResultSet as = st.executeQuery(appQuery);
+			String regQuery = "SELECT * FROM REGISTRATIONTWO where username=" + username;
+			ResultSet as = st.executeQuery(regQuery);
 			List<String> idList = new ArrayList<String>();
 
 			System.out.println("1 iddd while " + username);
@@ -102,7 +102,7 @@ public class MedicationManager extends HttpServlet {
 			}
 
 			request.setAttribute("data", result);
-			RequestDispatcher rd = request.getRequestDispatcher("dashboard.jsp");
+			RequestDispatcher rd = request.getRequestDispatcher("medForm.jsp");
 			rd.forward(request, response);
 
 			conn.close(); // tbd
@@ -142,7 +142,7 @@ public class MedicationManager extends HttpServlet {
 			c = medManager.getConnection();
 
 			try {
-				System.out.println("1 Hello it is ");
+				//System.out.println("1 Hello it is ");
 				stmt = c.createStatement();
 				stmt.executeUpdate(
 						"INSERT INTO MEDTABLE (medicationName, dose, time, day, notes) " + "VALUES ('" + medicationName
@@ -158,7 +158,7 @@ public class MedicationManager extends HttpServlet {
 
 				// insert this id in REGISTRATIONTWO table
 				// String username = (String) request.getAttribute("username");
-				System.out.println("2 hello it is " + username + " " + medId);
+				//System.out.println("2 hello it is " + username + " " + medId);
 				String query = "SELECT * FROM REGISTRATIONTWO WHERE username=" + username;
 
 				ResultSet tmpR2 = stmt.executeQuery(query);

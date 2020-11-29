@@ -15,7 +15,7 @@
 	url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap')
 	;
 
-.titles h2 {
+.userInfo-container h2 {
 	text-align: center;
 	margin: 0px auto; display; block;
 	padding-top: 10%;
@@ -23,9 +23,34 @@
 }
 
 .buttonsContainer {
-	text-align: center;
-	margin: 5vw; display; block;
+	position: aboslute;
+	text-align: center; display; block;
+	margin: auto;
+	vertical-align: middle;
 	font-family: 'Poppins', sans-serif;
+}
+
+.note-titles {
+	position: aboslute; text-align : center; display; block;
+	vertical-align: middle;
+	font-family: 'Poppins', sans-serif;
+	font-weight: bold;
+}
+
+.iframes-container {
+	text-align: center;
+	display: inline-block;
+}
+
+.iframe-styles {
+	display: inline-block;
+}
+
+.td-titles {
+	text-align: center;
+	vertical-align: middle; display; block;
+	font-family: 'Poppins', sans-serif;
+	font-weight: bold;
 }
 </style>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -33,28 +58,29 @@
 
 </head>
 <jsp:include page="navbar.jsp" />
-
+<script>
+	function foo() {
+		alert("Submit button clicked!");
+	}
+</script>
 
 <body>
 	<%
 		String username = request.getParameter("username");
 	List<RegistrationBean> list = (List<RegistrationBean>) request.getAttribute("list");
-
-	out.println("Welcome " + username);
 	%>
-
-
-
-	<div class="titles">
+	<div class="userInfo-container">
 		<c:if test="${ not empty list }">
-			<table>
+			<table style="width: 100%">
 				<c:forEach items="${list}" var="record">
-					<tr>
-						<td>Welcome: ${list.get(0).firstName } ${list.get(0).lastName }
-							!</td>
+					<tr class="td-titles">
+						<td style="font-size: 5vh; text-align: center;">${list.get(0).firstName }
+							${list.get(0).lastName }'s Personal Dashboard</td>
 					</tr>
 					<tr>
-
+						<td>Personal Details:</td>
+					</tr>
+					<tr>
 						<td>Email address: ${list.get(0).address }</td>
 					</tr>
 					<tr>
@@ -63,153 +89,45 @@
 				</c:forEach>
 			</table>
 		</c:if>
-		<h2>Personal Dashboard</h2>
 		<h2>Stuff left to do: add doc + pharmacy details, about us page,
 			patient's personal information</h2>
 
 	</div>
-	<form action="Login" method="get"></form>
 	<div class="buttonsContainer">
-		<a href="medicationNote.jsp?username=<%=username%>" class="medButton">Create
-			Medication Note</a> <br> <a href="appNote.jsp" class="appButton">Create
-			Appointment Note</a>
+		<table style="width: 100%">
+			<tr>
+				<td><a href="medicationNote.jsp?username=<%=username%>"
+					class="medButton">Create Medication Note</a></td>
+				<td><br> <a href="appNote.jsp?username=<%=username%>"
+					class="appButton">Create Appointment Note</a></td>
+			</tr>
+		</table>
 	</div>
 
-	<table style="with: 50%">
+	<div class="note-titles">
+		<table style="width: 75%; margin-left:15vw;">
+			<tr>
+				<td style="margin-left: 20px;"><h2>Medications Notes</h2></td>
+				<td style="margin-right: 20px;"><h2>Appointments Notes</h2></td>
+			</tr>
+		</table>
+	</div>
+
+	<table style="width: 100%">
 		<tr>
-			<td>
-				<%--Retrieves medication notes from MEDTABLE --%> <%
- 	try {
- 	DBManager medManager = new DBManager();
- 	Connection con = medManager.getConnection();
- 	Statement st = con.createStatement();
- 	ResultSet rs = st.executeQuery("SELECT * FROM MEDTABLE");
- 	String javaday = "";
- %>
-				<div class="buttonsContainer">
-
-					<form action="MedicationManager?username=" +<%=username%>
-						method="get">
-						<input type="hidden" name="username" value=<%=username%> /> <input
-							type="submit" value="Sunday" name="Sunday" /> <input
-							type="submit" value="Monday" name="Monday" /> <input
-							type="submit" value="Tuesday" name="Tuesday" /> <input
-							type="submit" value="Wednesday" name="Wednesday" /> <input
-							type="submit" value="Thursday" name="Thursday" /> <input
-							type="submit" value="Friday" name="Friday" /> <input
-							type="submit" value="Saturday" name="Saturday" />
-					</form>
-				</div>
-				<table border=1 align=center style="text-align: center">
-					<thead>
-						<tr>
-							<th>ID</th>
-							<th>MEDICATION NAME</th>
-							<th>DOSE (IN mg)</th>
-							<th>TIME</th>
-							<th>NOTES</th>
-						</tr>
-					</thead>
-					<tbody>
-						<%
-							int iterator = 0;
-						int displayKey = 1;
-						TreeMap<Integer, List<MedicationBean>> std = (TreeMap<Integer, List<MedicationBean>>) request.getAttribute("data");
-						Set<Map.Entry<Integer, List<MedicationBean>>> s = std.entrySet();
-						for (Map.Entry<Integer, List<MedicationBean>> entry : s) {
-							List<MedicationBean> medlist = entry.getValue();
-							String deleteID = medlist.get(iterator).getID();
-						%>
-						<tr>
-							<td><%=displayKey%></td>
-							<td><%=medlist.get(iterator).getMedicationName()%></td>
-							<td><%=medlist.get(iterator).getDose()%></td>
-							<td><%=medlist.get(iterator).getTime()%></td>
-							<td><%=medlist.get(iterator).getNotes()%></td>
-							<td><a href="deleteMedication.jsp?id=<%=deleteID%>&username=<%=username%>"><button
-										type="button" class="delete">Delete</button></a></td>
-						</tr>
-						<%
-							displayKey++;
-						iterator++;
-						}
-						st.close();
-						con.close();
-						} catch (Exception e) {
-						System.out.print(e.getMessage());
-						}
-						%>
-					</tbody>
-				</table>
+			<td class="td-titles">
+				<%--Retrieves medication notes from MEDTABLE --%> <iframe
+					className="iframe-styles" align="right"
+					src="medForm.jsp?username=<%=username%>" width="550vw"
+					height="300vw"></iframe>
 			</td>
-			<td></td>
-			<td>
-				<%--Retrieves appointment notes from APPTABLE --%> <%
- 	try {
- 	DBManager medManager = new DBManager();
- 	Connection appCon = medManager.getConnection();
- 	Statement appSt = appCon.createStatement();
- 	ResultSet rs = appSt.executeQuery("SELECT * FROM APPTABLE");
- 	String javaday = "";
- %>
-				<div class="buttonsContainer">
-
-					<form action="AppointmentManager" method="get">
-						<input type="submit" value="Sunday" name="Sunday" /> <input
-							type="submit" value="Monday" name="Monday" /> <input
-							type="submit" value="Tuesday" name="Tuesday" /> <input
-							type="submit" value="Wednesday" name="Wednesday" /> <input
-							type="submit" value="Thursday" name="Thursday" /> <input
-							type="submit" value="Friday" name="Friday" /> <input
-							type="submit" value="Saturday" name="Saturday" />
-					</form>
-				</div>
-				<table border=1 align=center style="text-align: center">
-					<thead>
-						<tr>
-							<th>ID</th>
-							<th>APPOINTMENT NAME</th>
-							<th>TIME</th>
-							<th>NOTES</th>
-						</tr>
-					</thead>
-					<tbody>
-						<%
-							TreeMap<String, List<AppointmentBean>> appMap = (TreeMap<String, List<AppointmentBean>>) request
-								.getAttribute("appData");
-						Set<Map.Entry<String, List<AppointmentBean>>> s = appMap.entrySet();
-						int iterator = 0;
-						int displayKey = 1;
-						for (Map.Entry<String, List<AppointmentBean>> entry : s) {
-							List<AppointmentBean> applist = entry.getValue();
-						%>
-						<tr>
-							<td><%=displayKey%></td>
-							<td><%=applist.get(iterator).getAppName()%></td>
-							<td><%=applist.get(iterator).getTiming()%></td>
-							<td><%=applist.get(iterator).getNotes()%></td>
-							<td><a
-								href="deleteAppointment.jsp?idAppt=<%=entry.getKey()%>"><button
-										type="button" class="delete">Delete</button></a></td>
-						</tr>
-						<%
-							displayKey++;
-						iterator++;
-						}
-						%>
-					</tbody>
-
-				</table> <%
- 	appSt.close();
- appCon.close();
- } catch (Exception e) {
- System.out.print(e.getMessage());
- }
- %>
+			<td class="td-titles">
+				<%--Retrieves appointment notes from APPTABLE --%> <iframe
+					src="appForm.jsp?username=<%=username%>" align="left" width="550vw"
+					height="300vw"></iframe>
 			</td>
 		</tr>
 	</table>
 	<div class="medicationNotes"></div>
-
 </body>
 </html>
