@@ -1,18 +1,38 @@
-  <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Login Form</title>
 </head>
+
 <body>
-<h3>Login Form</h3>  
- <br/>  
-<form action="Login" method="post">  
-Username:<input type="text" name="username"/><br/><br/>  
-Password:<input type="password" name="password"/><br/><br/>  
-<input type="submit" value="Submit"/>  
+	<%
+		String email = (String) request.getAttribute("email");
+	String contact = request.getParameter("contact");
+	System.out.println("emaill: " + email);
+	%>
+	<h3>Login</h3>
+	<br />
+	<form action="Login" method="post">
+		<table style="with: 50%">
+
+			<tr>
+				<td>Username</td>
+				<td><input type="text" name="username" /></td>
+			</tr>
+			<tr>
+				<td>Password</td>
+				<td><input type="password" name="password" /></td>
+			</tr>
+			<tr>
+		</table>
+
+		<input type="hidden" name="email" value="<%=email%>" /> <input
+			type="hidden" name="contact" value="<%=contact%>" /> <input
+			type="submit" value="Submit" />
 
 		<%
 			if (request.getAttribute("loginAlert") == ("no")) {
@@ -23,6 +43,6 @@ Password:<input type="password" name="password"/><br/><br/>
 		<%
 			}
 		%>
-</form>  
+	</form>
 </body>
 </html>

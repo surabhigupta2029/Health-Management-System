@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <meta charset="ISO-8859-1">
 <title>Create Medication Note</title>
 </head>
@@ -23,7 +24,7 @@
 			<tr>
 				<td>Time</td>
 				<td><input type="time" name="timing"
-					required /></td>
+					id="timeInput" required /></td>
 			</tr>
 			<tr>
 				<td>Day</td>
@@ -31,13 +32,13 @@
 			</tr>
 			<tr>
 				<td>Notes/Special details</td>
-				<td><input type="text" name="notes" required/></td>
+				<td><input type="text" name="notes" required /></td>
 			</tr>
 
 
-		</table>
+		</table>		
 		<input type="hidden" name="username" value="<%=username%>" /> <br>
-		 <input type="submit" value="Submit" name="submit" />
+		<input type="submit" value="Submit" name="submit" />
 
 	</form>
 </body>

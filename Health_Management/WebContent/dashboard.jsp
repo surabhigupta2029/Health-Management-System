@@ -15,23 +15,34 @@
 	url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap')
 	;
 
-.userInfo-container h2 {
+.userInfo-container {
 	text-align: center;
 	margin: 0px auto; display; block;
-	padding-top: 10%;
+	padding-top: 3%;
+	font-family: 'Poppins', sans-serif;
+}
+
+h3 {
+	text-align: center;
+	margin: 0px auto; display; block;
+	font-family: 'Poppins', sans-serif;
+}
+
+h2 {
+	text-align: center;
+	margin: 0px auto; display; block;
 	font-family: 'Poppins', sans-serif;
 }
 
 .buttonsContainer {
-	position: aboslute;
 	text-align: center; display; block;
 	margin: auto;
 	vertical-align: middle;
 	font-family: 'Poppins', sans-serif;
 }
 
-.note-titles {
-	position: aboslute; text-align : center; display; block;
+.note-titles th {
+	text-align: center; display; block;
 	vertical-align: middle;
 	font-family: 'Poppins', sans-serif;
 	font-weight: bold;
@@ -46,11 +57,90 @@
 	display: inline-block;
 }
 
+iframe {
+	max-width: 100vw;
+	max-height: 56.25vw; /* 315/560 = .5625 */
+}
+
+.centerText {
+	text-align: center;
+}
+
 .td-titles {
 	text-align: center;
 	vertical-align: middle; display; block;
 	font-family: 'Poppins', sans-serif;
 	font-weight: bold;
+	padding-top: 5%;
+	padding-bottom: 5%;
+}
+
+.bar {
+	position: relative;
+	top: 40;
+	left: 100;
+	right: 20;
+	width: 100%;
+	height: 10px;
+	width: 100%;
+	color: orange;
+}
+
+.holder {
+	/* 	background-color: lightblue; */
+	
+}
+
+.medTitle {
+	background-color: lightblue;
+}
+
+.appTitle {
+	background-color: lightgreen;
+}
+
+.bottom-margins {
+	margin-top: 10%;
+}
+
+a.medButton {
+	padding: 3%;
+	margin: 5%;
+}
+
+a.appButton {
+	padding: 3%;
+	margin: 5%;
+}
+
+a.medButton:link, a.medButton:visited {
+	background-color: white;
+	color: black;
+	border: 2px solid blue;
+	padding: 10px 20px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+}
+
+a.medButton:hover, a.medButton:active {
+	background-color: blue;
+	color: white;
+}
+
+a.appButton:link, a.appButton:visited {
+	background-color: white;
+	color: black;
+	border: 2px solid green;
+	padding: 10px 20px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+}
+
+a.appButton:hover, a.appButton:active {
+	background-color: green;
+	color: white;
 }
 </style>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -58,6 +148,7 @@
 
 </head>
 <jsp:include page="navbar.jsp" />
+
 <script>
 	function foo() {
 		alert("Submit button clicked!");
@@ -66,68 +157,78 @@
 
 <body>
 	<%
-		String username = request.getParameter("username");
-	List<RegistrationBean> list = (List<RegistrationBean>) request.getAttribute("list");
+		List<RegistrationBean> list;
+	String username = request.getParameter("username");
+	String email = request.getParameter("email");
+	String contact = request.getParameter("contact");
+	String first = request.getParameter("first");
+
+	list = (List<RegistrationBean>) request.getAttribute("list");
+	TreeMap<Integer, String> timeTypeMap = (TreeMap<Integer, String>) request.getAttribute("timeTypeMap");
+	TreeMap<Integer, String> appTimeTypeMap = (TreeMap<Integer, String>) request.getAttribute("appTimeTypeMap");
+	request.setAttribute("appTimeTimeMap", appTimeTypeMap);
+	request.setAttribute("timeTimeMap", timeTypeMap);
+
+	//System.out.println(timeTypeMap + "dashh");
 	%>
 	<div class="userInfo-container">
 		<c:if test="${ not empty list }">
 			<table style="width: 100%">
 				<c:forEach items="${list}" var="record">
 					<tr class="td-titles">
-						<td style="font-size: 5vh; text-align: center;">${list.get(0).firstName }
-							${list.get(0).lastName }'s Personal Dashboard</td>
+						<td style="font-size: 5vh; text-align: center;">Welcome <%=first%>!</td>
 					</tr>
 					<tr>
-						<td>Personal Details:</td>
+						<td>Personal Details</td>
 					</tr>
 					<tr>
-						<td>Email address: ${list.get(0).address }</td>
+						<td>Email address: <%=email%></td>
 					</tr>
 					<tr>
-						<td>Emergency contact: ${list.get(0).contact }</td>
+						<td>Emergency contact: <%=contact%></td>
 					</tr>
 				</c:forEach>
 			</table>
 		</c:if>
-		<h2>Stuff left to do: add doc + pharmacy details, about us page,
-			patient's personal information</h2>
-
 	</div>
-	<div class="buttonsContainer">
+
+
+	<div class="holder">
 		<table style="width: 100%">
+			<tr >
+				<td class="medTitle">
+					<h2 style="padding-top:10%;">Medication Notes</h2>
+					<h3>
+						<a class="medButton"
+							href="medicationNote.jsp?username=<%=username%>">Create
+							Medication Note </a>
+					</h3>
+				</td>
+				<td class="appTitle">
+					<h2  style="padding-top:10%;">Appointment Notes</h2>
+					<h3>
+						<a class="appButton" href="appNote.jsp?username=<%=username%>">Create
+							Appointment Note</a>
+					</h3>
+				</td>
+			</tr>
 			<tr>
-				<td><a href="medicationNote.jsp?username=<%=username%>"
-					class="medButton">Create Medication Note</a></td>
-				<td><br> <a href="appNote.jsp?username=<%=username%>"
-					class="appButton">Create Appointment Note</a></td>
+				<td class="td-titles" style="background-color: #D6F8E0;">
+					<%
+						request.setAttribute("timeTimeMap", timeTypeMap);
+					%> <iframe align="center" frameBorder="0"
+						src="medForm.jsp?username=<%=username%>" width="650" height="300"></iframe>
+				</td>
+				<td class="td-titles" style="background-color: #C8F69B;">
+					<%
+						session.setAttribute("appTimeTimeMap", appTimeTypeMap);
+					%><iframe src="appForm.jsp?username=<%=username%>" align="center"
+						frameBorder="0" width="650" height="300"> </iframe>
+				</td>
 			</tr>
 		</table>
 	</div>
-
-	<div class="note-titles">
-		<table style="width: 75%; margin-left:15vw;">
-			<tr>
-				<td style="margin-left: 20px;"><h2>Medications Notes</h2></td>
-				<td style="margin-right: 20px;"><h2>Appointments Notes</h2></td>
-			</tr>
-		</table>
-	</div>
-
-	<table style="width: 100%">
-		<tr>
-			<td class="td-titles">
-				<%--Retrieves medication notes from MEDTABLE --%> <iframe
-					className="iframe-styles" align="right"
-					src="medForm.jsp?username=<%=username%>" width="550vw"
-					height="300vw"></iframe>
-			</td>
-			<td class="td-titles">
-				<%--Retrieves appointment notes from APPTABLE --%> <iframe
-					src="appForm.jsp?username=<%=username%>" align="left" width="550vw"
-					height="300vw"></iframe>
-			</td>
-		</tr>
-	</table>
+	<div class="bottom-margins"></div>
 	<div class="medicationNotes"></div>
 </body>
 </html>

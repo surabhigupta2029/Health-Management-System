@@ -53,10 +53,10 @@ public class Login extends HttpServlet {
 		// TODO Auto-generated method stub
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
-		//String first_name = request.getParameter("first_name");
-		//String last_name = request.getParameter("last_name");
-		//String address = request.getParameter("address");
-		//String contact = request.getParameter("contact");
+		String first_name = request.getParameter("first_name");
+		String last_name = request.getParameter("last_name");
+		String address = request.getParameter("address");
+		String contact = request.getParameter("contact");
 		// System.out.println("in login.java");
 		List<RegistrationBean> list = new ArrayList<RegistrationBean>();
 
@@ -86,13 +86,17 @@ public class Login extends HttpServlet {
 						list.add(userDetail);
 						//System.out.println(list.get(0).getFirstName());
 						request.setAttribute("list", list);
-						RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
-						req.forward(request, response);
+						request.setAttribute("email", address);
+						response.sendRedirect("dashboard.jsp?username=" + username+"&email="+rs.getString("emailaddress")+"&contact="+rs.getString("contact")+"&first="+rs.getString("first"));
+
+//						RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
+//						req.forward(request, response);
 						break;
 					}
 				}
 				st.close();
 				conn.close();
+
 				RequestDispatcher req = request.getRequestDispatcher("login.jsp");
 				req.include(request, response);
 

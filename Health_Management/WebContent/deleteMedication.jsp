@@ -13,7 +13,7 @@ try {
 	Statement st = con.createStatement();
 	st.executeUpdate("DELETE FROM MEDTABLE WHERE id=" + id);
 
-	String query = "SELECT * FROM REGISTRATIONTWO WHERE username=" + username;
+	String query = "SELECT * FROM REGISTRATIONTWO WHERE username='" + username + "'";
 
 	ResultSet tmpR2 = st.executeQuery(query);
 

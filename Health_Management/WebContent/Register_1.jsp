@@ -17,7 +17,7 @@
 
 
 
-	<h1>Patient Register Form</h1>
+	<h1>Patient Registeration Form</h1>
 	<form method="post" action="regCheck">
 		<table style="with: 50%">
 			<tr>

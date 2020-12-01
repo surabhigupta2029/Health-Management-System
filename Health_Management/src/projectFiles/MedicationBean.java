@@ -1,7 +1,7 @@
 package projectFiles;
 
 public class MedicationBean {
-	String medicationName, dose, time, notes;
+	String medicationName, dose, time, notes, meridian;
 	String id;
 	//Getters
 	
@@ -25,6 +25,10 @@ public class MedicationBean {
 		return notes;
 	}
 	
+	public String getMeridian() {
+		return meridian;
+	}
+	
 	//Setters
 	
 	public void setID(String id) {
@@ -45,5 +49,9 @@ public class MedicationBean {
 	
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+	
+	public void setMeridian(String meridian) {
+		this.meridian = meridian;
 	}
 }

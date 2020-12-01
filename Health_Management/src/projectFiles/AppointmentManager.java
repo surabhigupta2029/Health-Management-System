@@ -9,13 +9,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 
 public class AppointmentManager extends HttpServlet{
 	
 	private static final long serialVersionUID = 1L;
 	DBManager appManager = new DBManager();
 	String username = "";
+	TreeMap<Integer, String> appTimeTypeMap = new TreeMap<Integer, String>();
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -58,7 +62,7 @@ public class AppointmentManager extends HttpServlet{
 			Statement st = conn.createStatement();
 			
 			// get record for this username only
-			String appQuery = "SELECT * FROM REGISTRATIONTWO where username=" + username;
+			String appQuery = "SELECT * FROM REGISTRATIONTWO where username= '" + username+ "'";
 			ResultSet as = st.executeQuery(appQuery);
 			List<String> idList = new ArrayList<String>();
 
@@ -85,6 +89,7 @@ public class AppointmentManager extends HttpServlet{
 					appDetail.setAppName(rs.getString("appName"));
 					appDetail.setTiming(rs.getString("timing"));
 					appDetail.setNotes(rs.getString("notes"));
+					appDetail.setMeridian(rs.getString("meridian"));
 					appList.add(appDetail);
 					appMap.put(rs.getString("id"), appList);
 					}
@@ -110,6 +115,12 @@ public class AppointmentManager extends HttpServlet{
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
 	 */
+	int id = 1;
+	int appId =0;
+	String meridian = "";
+	String first ="";
+	String email ="";
+	String contact ="";
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String appName = request.getParameter("appName");
@@ -117,6 +128,57 @@ public class AppointmentManager extends HttpServlet{
 		String day = request.getParameter("day");
 		String notes = request.getParameter("notes");
 		username = request.getParameter("username");
+		String orgTime = time;
+		 //System.out.println("orgtime " + orgTime);
+
+		Date date = null;
+		Time Time = null;
+		try {
+			SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+			date = (java.util.Date) format.parse(time);
+			java.sql.Time ppstime = new java.sql.Time(date.getTime());
+		} catch (ParseException e) {
+			request.setAttribute("time_error", "Please enter time in format HH:mm");
+		}
+		String[] delimitedStr = time.split(":");
+		String hours = delimitedStr[0];
+		int hoursInt = Integer.parseInt(hours);
+		String minutes = delimitedStr[1];
+		int minutesInt = Integer.parseInt(minutes);
+		if (hoursInt > 12) {
+			meridian = "PM";
+			hoursInt -= 12;
+		} else if (hoursInt < 12) {
+			meridian = "AM";
+			if (hoursInt == 0) {
+				hoursInt = 12;
+			}
+		} else {
+			meridian = "PM";
+		}
+		hours = hoursInt +"";
+		time = hours+minutes;
+		String mysqlTime = "";
+//		for (int i = 0; i < delimitedStr.length; i++) {
+//			time += delimitedStr[i];
+//		}
+//		if (time.contains("AM")) {
+//			time = time.replace("AM", "");
+//			timeType = "AM";
+//
+//		} else if (time.contains("PM")) {
+//			time = time.replace("PM", "");
+//			timeType = "PM";
+//
+//		}
+		// System.out.println("mysqltime " + mysqlTime);
+		 
+		 if(time.length() == 4) {
+			 time+="00";
+		 }else if(time.length() == 3) {
+			 time = "0"+time+"00";
+		 }
+		 //System.out.println("time " + time);
 
 		if (appName.isEmpty() || time.isEmpty() || notes.isEmpty() | day.isEmpty()) {
 			RequestDispatcher req = request.getRequestDispatcher("appNote.jsp");
@@ -129,11 +191,10 @@ public class AppointmentManager extends HttpServlet{
 
 			try {
 				stmt = c.createStatement();
-				stmt.executeUpdate("INSERT INTO APPTABLE (appName, timing, day, notes) "
-						+ "VALUES ('" + appName + "'," + time + ",'" + day + "','" + notes + "')", Statement.RETURN_GENERATED_KEYS);
+				stmt.executeUpdate("INSERT INTO APPTABLE (appName, timing, day, notes, meridian) "
+						+ "VALUES ('" + appName + "'," + time + ",'" + day + "','" + notes + "','" + meridian+ "')", Statement.RETURN_GENERATED_KEYS);
 				// get the ID of the row in medtable where insert took place.
 				ResultSet tmpR = stmt.getGeneratedKeys();
-				int appId = 0;
 				if (tmpR.next()) {
 					appId = tmpR.getInt(1);
 				}
@@ -141,7 +202,7 @@ public class AppointmentManager extends HttpServlet{
 				// insert this id in REGISTRATIONTWO table
 				// String username = (String) request.getAttribute("username");
 				//System.out.println("2 hello it is " + username + " " + appId);
-				String query = "SELECT * FROM REGISTRATIONTWO WHERE username=" + username;
+				String query = "SELECT * FROM REGISTRATIONTWO WHERE username ='" + username + "'";
 
 				ResultSet tmpR2 = stmt.executeQuery(query);
 
@@ -157,18 +218,28 @@ public class AppointmentManager extends HttpServlet{
 						updateString = "A3=" + appId;
 					}
 				}
+				first = tmpR2.getString("first");
+				email = tmpR2.getString("emailaddress");
+				contact = tmpR2.getString("contact");
+				username = tmpR2.getString("username");
 
 				// execute update command to insert this medication id in the registrationtwo
 				// table.
-				stmt.executeUpdate("UPDATE REGISTRATIONTWO SET " + updateString + " WHERE username='" + username + "'");
+				stmt.executeUpdate("UPDATE REGISTRATIONTWO SET " + updateString + " WHERE username ='" + username + "'");
+				appTimeTypeMap.put(appId, meridian);
 
 				c.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
-			req.forward(request, response);
+			//System.out.println(appTimeTypeMap.get(appId) + "app");
+
+			request.setAttribute("appTimeTypeMap", appTimeTypeMap);
+			response.sendRedirect("dashboard.jsp?first="+first+"&email="+email+"&contact="+contact+"&username="+username);
+
+//			RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
+//			req.forward(request, response);
 		}
 
 	}

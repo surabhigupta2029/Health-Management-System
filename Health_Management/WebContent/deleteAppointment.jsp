@@ -13,7 +13,7 @@ try {
  	Statement st = con.createStatement();
 	int i = st.executeUpdate("DELETE FROM APPTABLE WHERE id="+id);
 	
-	String query = "SELECT * FROM REGISTRATIONTWO WHERE username=" + username;
+	String query = "SELECT * FROM REGISTRATIONTWO WHERE username='" + username + "'";
 
 	ResultSet tmpR2 = st.executeQuery(query);
 
