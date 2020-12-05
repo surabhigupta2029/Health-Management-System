@@ -2,7 +2,6 @@ package projectFiles;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -12,9 +11,10 @@ import java.sql.*;
 import java.util.*;
 
 /**
- * Servlet implementation class login
+ * Class: Login.java
+ * Purpose: Performs doGet() and doPost() methods specifically for login page. 
  */
-//@WebServlet("/login")
+
 public class Login extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	DBManager lManager = new DBManager();
@@ -24,7 +24,6 @@ public class Login extends HttpServlet {
 	 */
 	public Login() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -57,24 +56,24 @@ public class Login extends HttpServlet {
 		String last_name = request.getParameter("last_name");
 		String address = request.getParameter("address");
 		String contact = request.getParameter("contact");
-		// System.out.println("in login.java");
 		List<RegistrationBean> list = new ArrayList<RegistrationBean>();
 
-		//check if they are empty
+		//Check if they are empty, and alert accordingly
 		if (username.isEmpty() || password.isEmpty()) {
 			request.setAttribute("loginAlert", "no");
 			RequestDispatcher req = request.getRequestDispatcher("login.jsp");
 			req.include(request, response);
 		} else {
 			try {
-				Connection conn = lManager.getConnection();
-				Statement st = conn.createStatement();
+				
+				//Compare input username and password to the records existing in database
 				String query = "SELECT * FROM REGISTRATIONTWO WHERE username='"+username+"'";
-				ResultSet rs = st.executeQuery(query);
+				ResultSet rs = lManager.stmt.executeQuery(query);
 
 				while (rs.next()) {
 					String usernameDB = rs.getString("username");
 					String passwordDB = rs.getString("password");
+					//If they are existing, then retreive user details
 					if (usernameDB.equals(username) && password.equals(passwordDB)) {
 						request.setAttribute("username", username);
 						RegistrationBean userDetail = new RegistrationBean();
@@ -84,19 +83,13 @@ public class Login extends HttpServlet {
 						userDetail.setContact(rs.getString("contact"));
 
 						list.add(userDetail);
-						//System.out.println(list.get(0).getFirstName());
 						request.setAttribute("list", list);
 						request.setAttribute("email", address);
 						response.sendRedirect("dashboard.jsp?username=" + username+"&email="+rs.getString("emailaddress")+"&contact="+rs.getString("contact")+"&first="+rs.getString("first"));
-
-//						RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
-//						req.forward(request, response);
 						break;
 					}
 				}
-				st.close();
-				conn.close();
-
+				rs.close();
 				RequestDispatcher req = request.getRequestDispatcher("login.jsp");
 				req.include(request, response);
 

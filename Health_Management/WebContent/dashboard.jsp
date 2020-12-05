@@ -7,6 +7,13 @@
 <%@page import="java.sql.*"%>
 <%@page import="java.util.*"%>
 
+
+<%-- Class: dashboard.jsp --%>
+<%-- Purpose: This is the patient's personal dashboard, where he/she can add medication and appointment notes.  --%>
+<%--These notes will be displayed and can also be deleted on the same page. Moreover, the dashboard displays the  --%>
+<%--logged in patient's personal details. --%>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,6 +27,12 @@
 	margin: 0px auto; display; block;
 	padding-top: 3%;
 	font-family: 'Poppins', sans-serif;
+}
+
+img {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
 }
 
 h3 {
@@ -158,25 +171,27 @@ a.appButton:hover, a.appButton:active {
 <body>
 	<%
 		List<RegistrationBean> list;
+
+	//Getting the parameters being passed to dashboard
 	String username = request.getParameter("username");
 	String email = request.getParameter("email");
 	String contact = request.getParameter("contact");
 	String first = request.getParameter("first");
 
+	//Getting attributes (treemaps) to later display
 	list = (List<RegistrationBean>) request.getAttribute("list");
-	TreeMap<Integer, String> timeTypeMap = (TreeMap<Integer, String>) request.getAttribute("timeTypeMap");
-	TreeMap<Integer, String> appTimeTypeMap = (TreeMap<Integer, String>) request.getAttribute("appTimeTypeMap");
-	request.setAttribute("appTimeTimeMap", appTimeTypeMap);
-	request.setAttribute("timeTimeMap", timeTypeMap);
-
-	//System.out.println(timeTypeMap + "dashh");
 	%>
+
+	<%--User's personal information --%>
 	<div class="userInfo-container">
+		<img src="img/Logo.png" name="pic" height="200" width="200" />
+
 		<c:if test="${ not empty list }">
 			<table style="width: 100%">
 				<c:forEach items="${list}" var="record">
 					<tr class="td-titles">
-						<td style="font-size: 5vh; text-align: center;">Welcome <%=first%>!</td>
+						<td style="font-size: 3vh; text-align: center;">Welcome <%=first%>!
+						</td>
 					</tr>
 					<tr>
 						<td>Personal Details</td>
@@ -192,12 +207,14 @@ a.appButton:hover, a.appButton:active {
 		</c:if>
 	</div>
 
+	<%--All medication and appointment information --%>
+	<%--Contains the buttons to create notes and even displays them --%>
 
 	<div class="holder">
 		<table style="width: 100%">
-			<tr >
+			<tr>
 				<td class="medTitle">
-					<h2 style="padding-top:10%;">Medication Notes</h2>
+					<h2 style="padding-top: 10%;">Medication Notes</h2>
 					<h3>
 						<a class="medButton"
 							href="medicationNote.jsp?username=<%=username%>">Create
@@ -205,7 +222,7 @@ a.appButton:hover, a.appButton:active {
 					</h3>
 				</td>
 				<td class="appTitle">
-					<h2  style="padding-top:10%;">Appointment Notes</h2>
+					<h2 style="padding-top: 10%;">Appointment Notes</h2>
 					<h3>
 						<a class="appButton" href="appNote.jsp?username=<%=username%>">Create
 							Appointment Note</a>
@@ -215,13 +232,11 @@ a.appButton:hover, a.appButton:active {
 			<tr>
 				<td class="td-titles" style="background-color: #D6F8E0;">
 					<%
-						request.setAttribute("timeTimeMap", timeTypeMap);
 					%> <iframe align="center" frameBorder="0"
 						src="medForm.jsp?username=<%=username%>" width="650" height="300"></iframe>
 				</td>
 				<td class="td-titles" style="background-color: #C8F69B;">
 					<%
-						session.setAttribute("appTimeTimeMap", appTimeTypeMap);
 					%><iframe src="appForm.jsp?username=<%=username%>" align="center"
 						frameBorder="0" width="650" height="300"> </iframe>
 				</td>

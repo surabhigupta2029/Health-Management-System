@@ -14,28 +14,43 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 
-public class AppointmentManager extends HttpServlet{
+public class AppointmentManager extends HttpServlet {
 	
+	/** 
+	 * Class: AppointmentManager.java
+	 * Purpose: Used to manage the appointments using doGet() and doPost() HTTP methods to respectively
+	 * get appointment entries and post appointment entries from database.
+	 */
+
 	private static final long serialVersionUID = 1L;
 	DBManager appManager = new DBManager();
 	String username = "";
 	TreeMap<Integer, String> appTimeTypeMap = new TreeMap<Integer, String>();
+	int id = 1;
+	int appId = 0;
+	String meridian = "";
+	String first = "";
+	String email = "";
+	String contact = "";
 
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
 	public AppointmentManager() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
+	 * 
+	 *      This method will be used to retrieve information from the database
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String appDay = "";
+		
+		//Get parameter for the day button clicked in dashboard
 		if (request.getParameter("Sunday") != null) {
 			appDay = "Sunday";
 		} else if (request.getParameter("Monday") != null) {
@@ -58,51 +73,49 @@ public class AppointmentManager extends HttpServlet{
 		try {
 
 			String reqDay = "";
-			Connection conn = appManager.getConnection();
-			Statement st = conn.createStatement();
-			
-			// get record for this username only
-			String appQuery = "SELECT * FROM REGISTRATIONTWO where username= '" + username+ "'";
-			ResultSet as = st.executeQuery(appQuery);
-			List<String> idList = new ArrayList<String>();
 
-			// pick Appointment Ids for this username
-			while (as.next()) {
-				String m = as.getString("A1");
-				if (!as.wasNull()) { idList.add(m); }
-				m = as.getString("A2");
-				if (!as.wasNull()) { idList.add(m); }
-				m = as.getString("A3");
-				if (!as.wasNull()) { idList.add(m); }
+			// Get record for this username only
+			String appQuery = "SELECT * FROM REGISTRATIONTWO where username= '" + username + "'";
+			ResultSet as = appManager.stmt.executeQuery(appQuery);
+			List<String> idList = new ArrayList<String>();
+			if (as.next()) {
+				reqDay = "";
 			}
 
+			// Retrieving appointment IDs and splitting to create array
+			String a = as.getString("A1");
+			String[] splitArr = a.split(",");
+			idList = Arrays.asList(splitArr);
+
+			// From apptable pick the exact records for this patient
+			// check -
 			String query = "SELECT * FROM APPTABLE";
-			ResultSet rs = st.executeQuery(query);
+			ResultSet rs = appManager.stmt.executeQuery(query);
 			appMap = new TreeMap<String, List<AppointmentBean>>();
 
+			// While a record exists, find the medication ntoe details and store in a
+			// treeMap
 			while (rs.next()) {
 				reqDay = rs.getString("day");
 				String reqID = rs.getString("id");
-				if (reqDay.equals(appDay)) {
+				if (reqDay.toLowerCase().equals(appDay.toLowerCase())) {
 					if (idList.contains(reqID)) {
-					AppointmentBean appDetail = new AppointmentBean();
-					appDetail.setAppName(rs.getString("appName"));
-					appDetail.setTiming(rs.getString("timing"));
-					appDetail.setNotes(rs.getString("notes"));
-					appDetail.setMeridian(rs.getString("meridian"));
-					appList.add(appDetail);
-					appMap.put(rs.getString("id"), appList);
+						AppointmentBean appDetail = new AppointmentBean();
+						appDetail.setAppName(rs.getString("appName"));
+						appDetail.setTiming(rs.getString("timing"));
+						appDetail.setNotes(rs.getString("notes"));
+						appDetail.setMeridian(rs.getString("meridian"));
+						appList.add(appDetail);
+						appMap.put(rs.getString("id"), appList);
 					}
 				}
 
 			}
 
+			// Forwarding the treemap and then redirecting back
 			request.setAttribute("appData", appMap);
 			RequestDispatcher rd = request.getRequestDispatcher("appForm.jsp");
 			rd.forward(request, response);
-			//conn.close(); // tbd
-
-			// response.getWriter().append("Served at: ").append(request.getContextPath());
 
 		} catch (Exception e) {
 
@@ -114,13 +127,10 @@ public class AppointmentManager extends HttpServlet{
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
+	 * 
+	 *      This method will be used to post data into the database
 	 */
-	int id = 1;
-	int appId =0;
-	String meridian = "";
-	String first ="";
-	String email ="";
-	String contact ="";
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String appName = request.getParameter("appName");
@@ -128,23 +138,12 @@ public class AppointmentManager extends HttpServlet{
 		String day = request.getParameter("day");
 		String notes = request.getParameter("notes");
 		username = request.getParameter("username");
-		String orgTime = time;
-		 //System.out.println("orgtime " + orgTime);
 
-		Date date = null;
-		Time Time = null;
-		try {
-			SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-			date = (java.util.Date) format.parse(time);
-			java.sql.Time ppstime = new java.sql.Time(date.getTime());
-		} catch (ParseException e) {
-			request.setAttribute("time_error", "Please enter time in format HH:mm");
-		}
+		// Splitting time parameter to read hours and minutes
 		String[] delimitedStr = time.split(":");
 		String hours = delimitedStr[0];
 		int hoursInt = Integer.parseInt(hours);
 		String minutes = delimitedStr[1];
-		int minutesInt = Integer.parseInt(minutes);
 		if (hoursInt > 12) {
 			meridian = "PM";
 			hoursInt -= 12;
@@ -156,90 +155,62 @@ public class AppointmentManager extends HttpServlet{
 		} else {
 			meridian = "PM";
 		}
-		hours = hoursInt +"";
-		time = hours+minutes;
-		String mysqlTime = "";
-//		for (int i = 0; i < delimitedStr.length; i++) {
-//			time += delimitedStr[i];
-//		}
-//		if (time.contains("AM")) {
-//			time = time.replace("AM", "");
-//			timeType = "AM";
-//
-//		} else if (time.contains("PM")) {
-//			time = time.replace("PM", "");
-//			timeType = "PM";
-//
-//		}
-		// System.out.println("mysqltime " + mysqlTime);
-		 
-		 if(time.length() == 4) {
-			 time+="00";
-		 }else if(time.length() == 3) {
-			 time = "0"+time+"00";
-		 }
-		 //System.out.println("time " + time);
+		hours = hoursInt + "";
+		time = hours + minutes;
 
-		if (appName.isEmpty() || time.isEmpty() || notes.isEmpty() | day.isEmpty()) {
+		// If any of the input field are empty, then refresh the page to refill
+		if (appName.isEmpty() || time.isEmpty() || notes.isEmpty() || day.isEmpty() || day.matches(".*\\d.*")) {
+			request.setAttribute("appointmentAlert", "no");
 			RequestDispatcher req = request.getRequestDispatcher("appNote.jsp");
 			req.include(request, response);
 		}
 		else {
-			Statement stmt = null;
-			Connection c = null;
-			c = appManager.getConnection();
 
 			try {
-				stmt = c.createStatement();
-				stmt.executeUpdate("INSERT INTO APPTABLE (appName, timing, day, notes, meridian) "
-						+ "VALUES ('" + appName + "'," + time + ",'" + day + "','" + notes + "','" + meridian+ "')", Statement.RETURN_GENERATED_KEYS);
-				// get the ID of the row in medtable where insert took place.
-				ResultSet tmpR = stmt.getGeneratedKeys();
+				appManager.stmt.executeUpdate(
+						"INSERT INTO APPTABLE (appName, timing, day, notes, meridian) " + "VALUES ('" + appName + "',"
+								+ time + ",'" + day + "','" + notes + "','" + meridian + "')",
+						Statement.RETURN_GENERATED_KEYS);
+				ResultSet tmpR = appManager.stmt.getGeneratedKeys();
 				if (tmpR.next()) {
+					// Get the ID of the row in apptable where insert took place.
 					appId = tmpR.getInt(1);
 				}
 
-				// insert this id in REGISTRATIONTWO table
-				// String username = (String) request.getAttribute("username");
-				//System.out.println("2 hello it is " + username + " " + appId);
+				// Using username to select user specific details
 				String query = "SELECT * FROM REGISTRATIONTWO WHERE username ='" + username + "'";
 
-				ResultSet tmpR2 = stmt.executeQuery(query);
+				ResultSet tmpR2 = appManager.stmt.executeQuery(query);
 
-				// find the empty medicine column for this user. there will be only one row for
-				// this user.
 				String updateString = "";
 				if (tmpR2.next()) {
-					if (tmpR2.getString("A1") == null) {
-						updateString = "A1=" + appId;
-					} else if (tmpR2.getString("A2") == null) {
-						updateString = "A2=" + appId;
-					} else if (tmpR2.getString("A3") == null) {
-						updateString = "A3=" + appId;
-					}
+					updateString = "";
 				}
+
+				// Retreiving user details for sending to redirected page
 				first = tmpR2.getString("first");
 				email = tmpR2.getString("emailaddress");
 				contact = tmpR2.getString("contact");
 				username = tmpR2.getString("username");
+				
+				// Creating update string to update in table entry
+				updateString = tmpR2.getString("A1") + appId + ",";
 
-				// execute update command to insert this medication id in the registrationtwo
+				// Execute update command to insert this medication id in the registrationtwo
 				// table.
-				stmt.executeUpdate("UPDATE REGISTRATIONTWO SET " + updateString + " WHERE username ='" + username + "'");
+				appManager.stmt.executeUpdate(
+						"UPDATE REGISTRATIONTWO SET A1 = '" + updateString + "'  WHERE username ='" + username + "'");
 				appTimeTypeMap.put(appId, meridian);
 
-				c.close();
+				tmpR2.close();
+				tmpR.close();
+				request.setAttribute("appTimeTypeMap", appTimeTypeMap);
+				response.sendRedirect("dashboard.jsp?first=" + first + "&email=" + email + "&contact=" + contact
+						+ "&username=" + username);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//System.out.println(appTimeTypeMap.get(appId) + "app");
-
-			request.setAttribute("appTimeTypeMap", appTimeTypeMap);
-			response.sendRedirect("dashboard.jsp?first="+first+"&email="+email+"&contact="+contact+"&username="+username);
-
-//			RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
-//			req.forward(request, response);
 		}
 
 	}

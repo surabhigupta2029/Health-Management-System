@@ -15,19 +15,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Class: regCheck.java Purpose: To check the registration details. Has a
+ * doPost() method to post user's details if they are valid and not empty.
+ */
+
 public class regCheck extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	DBManager rManager = new DBManager();
-	String dbname = "REGISTRATION";
-	/*
-	 * String sql = "CREATE TABLE " + dbname + " " + "(id INTEGER not NULL, " +
-	 * " first VARCHAR(255), " + " last VARCHAR(255), " + " username VARCHAR(25), "
-	 * + " password VARCHAR(25), " + " address INTEGER, " + " contact INTEGER, " +
-	 * " PRIMARY KEY ( id ))";
-	 */
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
+		// Retrieve input from the page
 		String first_name = request.getParameter("first_name");
 		String last_name = request.getParameter("last_name");
 		String username = request.getParameter("username");
@@ -35,32 +35,26 @@ public class regCheck extends HttpServlet {
 		String address = request.getParameter("address");
 		String contact = request.getParameter("contact");
 
-		regMember member = new regMember(first_name, last_name, username, password, address, contact);
-		// check if any field is empty. Raise Alert.
+		// Check if any field is empty. Raise Alert, and then refresh.
 		if (first_name.isEmpty() || last_name.isEmpty() || username.isEmpty() || password.isEmpty() || address.isEmpty()
 				|| contact.isEmpty()) {
 			request.setAttribute("alertMessage", "no");
-			RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
+			RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 			req.include(request, response);
 		} else {
-			// rManager.createTable(sql, member);
-			// String result = rManager.insert(member);
-			Statement stmt = null;
-			Connection c = null;
-			c = rManager.getConnection();
 
 			// Check for if username entered already exists
 			boolean isPresent = false;
 			String existsQuery = "SELECT EXISTS(SELECT 1 FROM REGISTRATIONTWO WHERE username = '" + username + "')";
 			try {
-				stmt = c.createStatement();
-				ResultSet resultSet = stmt.executeQuery(existsQuery);
+				ResultSet resultSet = rManager.stmt.executeQuery(existsQuery);
 				if (resultSet.next()) {
+					// If getInt() == 1, there is an exact record already existing
 					if (resultSet.getInt(1) == 1) {
 						isPresent = true;
-						//System.out.println("NOPE");
 						request.setAttribute("alertMessage", "no");
-						RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
+						resultSet.close();
+						RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 						req.forward(request, response);
 
 					} else {
@@ -69,65 +63,60 @@ public class regCheck extends HttpServlet {
 				}
 			} catch (SQLException e1) {
 				request.setAttribute("alertMessage", "no");
-				RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
+				RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 				req.forward(request, response);
-
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			
-			//Check if information entered is of valid type
+
+			// Check if information entered is of valid type
 			boolean isValid = false;
-			
-			if(address.contains("@")) {
-				if(contact.length() == 10) {
-					if(username.length() >= 5 && password.length() >= 5) {
-						//System.out.println("passed");
+			if (address.contains("@")) {
+				if (contact.length() == 10) {
+					if (username.length() >= 5 && password.length() >= 5) {
 						isValid = true;
+					} else {
+						request.setAttribute("alertMessage", "no");
+						RequestDispatcher req = request.getRequestDispatcher("register.jsp");
+						req.forward(request, response);
 					}
+				} else {
+					request.setAttribute("alertMessage", "no");
+					RequestDispatcher req = request.getRequestDispatcher("register.jsp");
+					req.forward(request, response);
 				}
-			}else {
+
+			} else {
 				isValid = false;
-				//System.out.println("NOPE");
 				request.setAttribute("alertMessage", "no");
-				RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
+				RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 				req.forward(request, response);
 
 			}
-			
-			if(isPresent == true && isValid == false) {
-				RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
+
+			if (isPresent == true && isValid == false) {
+				RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 				req.forward(request, response);
 			}
 
+			// Only if details entered are not existing and of valid type, proceed to insert
+			// in database
 			if (isPresent == false && isValid == true) {
 				try {
-					stmt = c.createStatement();
-					stmt.executeUpdate(
+					rManager.stmt.executeUpdate(
 							"INSERT INTO REGISTRATIONTWO (first, last, emailaddress, username, password, contact) "
 									+ "VALUES ('" + first_name + "', '" + last_name + "','" + address + "','" + username
 									+ "','" + password + "'," + contact + ")");
-					c.close();
-					// After successful Registration, User needs to login. Go to login page.
-					response.sendRedirect("dashboard.jsp?first="+first_name+"&email="+address+"&contact="+contact+"&username="+username);
 
-//					RequestDispatcher req = request.getRequestDispatcher("login.jsp?email="+address+"&contact="+contact);
-//					req.forward(request, response);
+					// After successful Registration, user is redirected to dashboard.
+					response.sendRedirect("dashboard.jsp?first=" + first_name + "&email=" + address + "&contact="
+							+ contact + "&username=" + username);
+
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					request.setAttribute("alertMessage", "no");
-					RequestDispatcher req = request.getRequestDispatcher("Register_1.jsp");
+					RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 					e.printStackTrace();
 				}
-				
-//			try {
-//				rManager.insert(member);
-//			} catch (SQLException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-				// rManager.print();
-				// response.getWriter().print(result);
+
 			}
 		}
 	}

@@ -6,6 +6,11 @@
 <%@page import="projectFiles.MedicationBean"%>
 <%@page import="java.sql.*"%>
 <%@page import="java.util.*"%>
+
+<%-- Class: medForm.jsp --%>
+<%-- Purpose: This class is used to display the user medication entries based on the day button they click.  --%>
+<%--Also includes the "delete" button next to each entry.  --%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,15 +45,15 @@ input[type='submit'] {
 	font-weight: medium;
 	font-size: medium;
 	border-spacing: 5px;
-	
 }
-table{
-  border: 1px solid black;
-  border-radius: 5px;
-  border-weight: 1px;
-  border-collapse: collapse;
 
+table {
+	border: 1px solid black;
+	border-radius: 5px;
+	border-weight: 1px;
+	border-collapse: collapse;
 }
+
 tr.medFormtd:nth-child(even) {
 	background-color: #B7CBC0;
 }
@@ -71,19 +76,16 @@ tr th {
 </head>
 <body>
 	<%
-		String username = request.getParameter("username");
-	TreeMap<Integer, String> timeTypeMap = (TreeMap<Integer, String>) session.getAttribute("timeTypeMap");
-	//System.out.println(timeTypeMap + " medform");
+		//Getting parameter username
+	String username = request.getParameter("username");
+
+	//Getting attribute of type treemap which holds the selected medication entries
 	TreeMap<Integer, List<MedicationBean>> medMap = (TreeMap<Integer, List<MedicationBean>>) request.getAttribute("data");
 
 	try {
-		DBManager medManager = new DBManager();
-		Connection con = medManager.getConnection();
-		Statement st = con.createStatement();
-		ResultSet rs = st.executeQuery("SELECT * FROM MEDTABLE");
-		String javaday = "";
 	%>
 	<div class="buttonsContainer">
+		<%-- Buttons for each day of the week. Clicking a button sends a request to the respective java servlet file --%>
 
 		<form action="MedicationManager?username=" +<%=username%> method="get">
 			<input type="hidden" name="username" value=<%=username%> /> <input
@@ -98,7 +100,9 @@ tr th {
 	</div>
 	<div style="margin-top: 5%"></div>
 
-	<table class="tdStyles" align=center style="text-align: center;  border-collapse: collapse;">
+	<%-- Displays the medication entries in table format --%>
+	<table class="tdStyles" align=center
+		style="text-align: center; border-collapse: collapse;">
 		<thead>
 			<tr>
 				<th>ID</th>
@@ -106,8 +110,8 @@ tr th {
 				<th>DOSE (IN mg)</th>
 				<th>TIME</th>
 				<th>NOTES</th>
-				<th>  </th>
-				
+				<th></th>
+
 			</tr>
 		</thead>
 		<tbody>
@@ -115,19 +119,20 @@ tr th {
 				int iterator = 0;
 			int displayKey = 1;
 			Set<Map.Entry<Integer, List<MedicationBean>>> s = medMap.entrySet();
+
+			//If the treemap is emtpy (meaning there are no entries yet), display alert
 			if (medMap.isEmpty()) {
-				%>
-				<script type="text/javascript">
-					alert("No entries for this day yet!");
-				</script>
-				<%
-					}
+			%>
+			<script type="text/javascript">
+				alert("No entries for this day yet!");
+			</script>
+			<%
+				}
+
+			//If there is information in treemap, display it as follows
 			for (Map.Entry<Integer, List<MedicationBean>> entry : s) {
 			List<MedicationBean> medlist = entry.getValue();
 			String deleteID = medlist.get(iterator).getID();
-// 			int intID = Integer.parseInt(deleteID);
-// 			System.out.println(timeTypeMap);
-// 			String timeType = timeTypeMap.get(intID);
 			%>
 			<tr class="medFormtd">
 				<td><%=displayKey%></td>
@@ -147,10 +152,7 @@ tr th {
 		</tbody>
 	</table>
 	<%
-		st.close();
-	con.close();
-
-	} catch (Exception e) {
+		} catch (Exception e) {
 	System.out.print(e.getMessage());
 	}
 	%>

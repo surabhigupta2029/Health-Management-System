@@ -3,6 +3,10 @@
 <%@page import="java.sql.DriverManager"%>
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+
+<%-- Class: loginAndReg.jsp --%>
+<%-- Purpose: The initial page the patient sees, where they can either login or register --%>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -83,23 +87,22 @@ a.Rbutton:hover {
 <title>Entry Page</title>
 <body>
 	<%
-	DBManager db = new DBManager();
-	Connection conn = db.getConnection();
-	if (conn == null) {
-		out.print("Sorry, connection failed :(");
-	} else {
-		out.print("Yay! Connection successful");
-	}
-	
+		// 	DBManager db = new DBManager();
+	// 	Connection conn = db.getConnection();
+	// 	if (conn == null) {
+	// 		out.print("Sorry, connection failed :(");
+	// 	} else {
+	// 		out.print("Yay! Connection successful");
+	// 	}
+
 	//admin task
 	//db.createTable();
-	
 	%>
 	<h1 class="title">Please choose one of the following</h1>
 	<div class="button-container">
 		<ul>
 			<a href="login.jsp" class="Lbutton">Login</a>
-			<a href="Register_1.jsp" class="Rbutton">Register</a>
+			<a href="register.jsp" class="Rbutton">Register</a>
 		</ul>
 	</div>
 </body>

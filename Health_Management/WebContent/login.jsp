@@ -1,6 +1,12 @@
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+
+<%-- Class: login.jsp --%>
+<%-- Purpose: This is the patient login page where they can log in using their username and password,  --%>
+<%--created at the time of registration. If there is empty and or invalid input, an alert shows up.  --%>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,9 +16,9 @@
 
 <body>
 	<%
-		String email = (String) request.getAttribute("email");
+		//Getting attributes for email and contact
+	String email = (String) request.getAttribute("email");
 	String contact = request.getParameter("contact");
-	System.out.println("emaill: " + email);
 	%>
 	<h3>Login</h3>
 	<br />
@@ -30,12 +36,14 @@
 			<tr>
 		</table>
 
+		<%-- Passing hidden values that user does not have to fill out, but are needed by the system --%>
 		<input type="hidden" name="email" value="<%=email%>" /> <input
 			type="hidden" name="contact" value="<%=contact%>" /> <input
 			type="submit" value="Submit" />
 
 		<%
-			if (request.getAttribute("loginAlert") == ("no")) {
+			//If there is an error in the input, alert pops up
+		if (request.getAttribute("loginAlert") == ("no")) {
 		%>
 		<script type="text/javascript">
 			alert("Please retry! Username and Passwrods do Not Match.");

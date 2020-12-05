@@ -3,38 +3,55 @@
 <%@page import="java.sql.*,java.util.*"%>
 <%@page import="projectFiles.DBManager"%>
 <%@page import="java.sql.*"%>
+
+<%-- Class: deleteMedication.jsp --%>
+<%-- Purpose: Used to delete selected medication entries using a unique ID corresponding to logged in user --%>
+
 <%
-String id = request.getParameter("id");
+	String id = request.getParameter("id");
 String username = request.getParameter("username");
+String updateString = "";
 
 try {
 	DBManager medManager = new DBManager();
-	Connection con = medManager.getConnection();
-	Statement st = con.createStatement();
+	//Connection con = medManager.getConnection();
+	Statement st = medManager.stmt;
+
+	//Delete entry from MEDTABLE
 	st.executeUpdate("DELETE FROM MEDTABLE WHERE id=" + id);
 
+	//Query to delete from the registration DB which holds ids specific to logged in user
 	String query = "SELECT * FROM REGISTRATIONTWO WHERE username='" + username + "'";
-
 	ResultSet tmpR2 = st.executeQuery(query);
 
-	// find the empty medicine column for this user. there will be only one row for
+	// Find the empty medicine column for this user. There will be only one row for
 	// this user.
-	String updateString = "";
+	int present = 0;
 	if (tmpR2.next()) {
-		if (tmpR2.getString("M1").equals(id)) {
-	updateString = "M1 = ";
-		} else if (tmpR2.getString("M2").equals(id)) {
-	updateString = "M2 = ";
-		} else if (tmpR2.getString("M3").equals(id)) {
-	updateString = "M3 = ";
+		present = 1;
+	}
+
+	//Parsing through the data entry, splitting based on ","
+	String dbStr = tmpR2.getString("M1");
+	String[] medList = dbStr.split(",");
+
+	String[] updatedList = new String[medList.length];
+
+	//Creating the updatedString to feed into database
+	for (int i = 0; i < medList.length; i++) {
+		if (!(medList[i].equals(id))) {
+	updateString += "" + medList[i] + ",";
 		}
 	}
-	st.executeUpdate("UPDATE REGISTRATIONTWO SET " + updateString +"NULL WHERE username='" + username + "'");
 
-	con.close();
+	st.executeUpdate("UPDATE REGISTRATIONTWO SET M1 = '" + updateString + "' WHERE username='" + username + "'");
+
 	RequestDispatcher rd = request.getRequestDispatcher("medForm.jsp");
 	rd.forward(request, response);
-	System.out.println("Data Deleted Successfully!");
+	tmpR2.close();
+	//st.close();
+	//con.close();
+
 } catch (Exception e) {
 	System.out.print(e);
 	e.printStackTrace();

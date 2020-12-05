@@ -14,29 +14,43 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
 
+/**
+ * Class: MedicationManager.java Purpose: Used to manage the medications using
+ * doGet() and doPost() HTTP methods to respectively get medications entries and
+ * post medication entries from database.
+ */
+
 public class MedicationManager extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	DBManager medManager = new DBManager();
 	String username = "";
-	TreeMap<Integer, String> timeTypeMap = new TreeMap<Integer, String>();
-	String timeType = "";
+	int id = 1;
+	int medId = 0;
+	String meridian = "";
+	String first = "";
+	String email = "";
+	String contact = "";
 
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
 	public MedicationManager() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
+	 * 
+	 *      This method will be used to retrieve information from the database
+	 * 
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String day = "";
+
+		// Get parameter for the day button clicked in dashboard
 		if (request.getParameter("Sunday") != null) {
 			day = "Sunday";
 		} else if (request.getParameter("Monday") != null) {
@@ -51,61 +65,52 @@ public class MedicationManager extends HttpServlet {
 			day = "Friday";
 		} else if (request.getParameter("Saturday") != null) {
 			day = "Saturday";
+		} else if (request.getParameter("Email") != null) {
+			day = "Email";
 		}
 
 		String username = request.getParameter("username");
-		//System.out.println("username" + username);
-		request.setAttribute("timeTypeMap", timeTypeMap);
 
 		try {
 
 			String reqDay = "";
-			Connection conn = medManager.getConnection();
-			Statement st = conn.createStatement();
 
-			// get record for this username only
+			// Get record for this username only from the registration table
 			String regQuery = "SELECT * FROM REGISTRATIONTWO where username='" + username + "'";
-			ResultSet as = st.executeQuery(regQuery);
+			ResultSet as = medManager.stmt.executeQuery(regQuery);
 			List<String> idList = new ArrayList<String>();
-
-			// pick Medication Ids for this username
-			while (as.next()) {
-				String m = as.getString("M1");
-				if (!as.wasNull()) {
-					idList.add(m);
-				}
-				m = as.getString("M2");
-				if (!as.wasNull()) {
-					idList.add(m);
-				}
-				m = as.getString("M3");
-				if (!as.wasNull()) {
-					idList.add(m);
-				}
+			if (as.next()) {
+				reqDay = "";
 			}
 
+			// Retrieving medication IDs and splitting to create array
+			String m = as.getString("M1");
+			String[] splitArr = m.split(",");
+			idList = Arrays.asList(splitArr);
 
 			// From medtable pick the exact records for this patient
 			// check -
 			String medQuery = "SELECT * FROM MEDTABLE";
-			ResultSet rs = st.executeQuery(medQuery);
+			ResultSet medrs = medManager.stmt.executeQuery(medQuery);
 			TreeMap<Integer, List<MedicationBean>> result = new TreeMap<Integer, List<MedicationBean>>();
 			List<MedicationBean> medList = new ArrayList<MedicationBean>();
 			int idKey = 1;
 
-			while (rs.next()) {
-				reqDay = rs.getString("day");
-				String reqID = rs.getString("id");
+			// While a record exists, find the medication ntoe details and store in a
+			// treeMap
+			while (medrs.next()) {
+				reqDay = medrs.getString("day");
+				String reqID = medrs.getString("id");
 				if (reqDay.toLowerCase().equals(day.toLowerCase())) {
 					if (idList.contains(reqID)) {
 						MedicationBean medDetails = new MedicationBean();
-						String medTime = rs.getString("time");
-						medDetails.setID(rs.getString("id"));
-						medDetails.setMedicationName(rs.getString("medicationName"));
-						medDetails.setDose(rs.getString("dose"));
-						medDetails.setMeridian(rs.getString("meridian"));
+						String medTime = medrs.getString("time");
+						medDetails.setID(medrs.getString("id"));
+						medDetails.setMedicationName(medrs.getString("medicationName"));
+						medDetails.setDose(medrs.getString("dose"));
+						medDetails.setMeridian(medrs.getString("meridian"));
 						medDetails.setTime(medTime);
-						medDetails.setNotes(rs.getString("notes"));
+						medDetails.setNotes(medrs.getString("notes"));
 						medList.add(medDetails);
 						result.put(idKey, medList);
 						idKey++;
@@ -114,13 +119,10 @@ public class MedicationManager extends HttpServlet {
 
 			}
 
+			// Forwarding the treemap and then redirecting back
 			request.setAttribute("data", result);
 			RequestDispatcher rd = request.getRequestDispatcher("medForm.jsp");
 			rd.forward(request, response);
-
-			conn.close(); // tbd
-
-			// response.getWriter().append("Served at: ").append(request.getContextPath());
 
 		} catch (Exception e) {
 
@@ -133,35 +135,27 @@ public class MedicationManager extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
+	 * 
+	 *      This method will be used to post data into the database
 	 */
-	int id = 1;
-	int medId = 0;
-	String meridian = "";
-	String first ="";
-	String email ="";
-	String contact ="";
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
+
 		String medicationName = request.getParameter("medicationName");
 		String dose = request.getParameter("dose");
 		String time = request.getParameter("timing");
-		String orgTime = time;
+		String day = request.getParameter("day");
+		String notes = request.getParameter("notes");
+		username = request.getParameter("username");
 
-		Date date = null;
-		Time Time = null;
-		try {
-			SimpleDateFormat format = new SimpleDateFormat("HH:mm");
-			date = (java.util.Date) format.parse(time);
-			java.sql.Time ppstime = new java.sql.Time(date.getTime());
-		} catch (ParseException e) {
-			request.setAttribute("time_error", "Please enter time in format HH:mm");
-		}
+		// Splitting time parameter to read hours and minutes
 		String[] delimitedStr = time.split(":");
 		String hours = delimitedStr[0];
 		int hoursInt = Integer.parseInt(hours);
 		String minutes = delimitedStr[1];
-		int minutesInt = Integer.parseInt(minutes);
+
+		// Code to figure out AM or PM time
 		if (hoursInt > 12) {
 			meridian = "PM";
 			hoursInt -= 12;
@@ -173,106 +167,67 @@ public class MedicationManager extends HttpServlet {
 		} else {
 			meridian = "PM";
 		}
-		hours = hoursInt +"";
-		time = hours+minutes;
-		String mysqlTime = "";
-//		for (int i = 0; i < delimitedStr.length; i++) {
-//			time += delimitedStr[i];
-//		}
-//		if (time.contains("AM")) {
-//			time = time.replace("AM", "");
-//			timeType = "AM";
-//
-//		} else if (time.contains("PM")) {
-//			time = time.replace("PM", "");
-//			timeType = "PM";
-//
-//		}
-		// System.out.println("mysqltime " + mysqlTime);
-		 
-		 if(time.length() == 4) {
-			 time+="00";
-		 }else if(time.length() == 3) {
-			 time = "0"+time+"00";
-		 }
-
-		String day = request.getParameter("day");
-		String notes = request.getParameter("notes");
-		username = request.getParameter("username");
-
+		hours = hoursInt + "";
+		time = hours + minutes;
+		if (time.length() == 4) {
+			time += "00";
+		} else if (time.length() == 3) {
+			time = "0" + time + "00";
+		}
+		// If any of the input field are empty, then refresh the page to refill
 		if (medicationName.isEmpty() || dose.isEmpty() || time.isEmpty() || notes.isEmpty() | day.isEmpty()) {
+			request.setAttribute("medicationAlert", "no");
+			RequestDispatcher req = request.getRequestDispatcher("medicationNote.jsp");
+			req.include(request, response);
+		} else if (day.matches(".*\\d.*") || !dose.matches(".*\\d.*")
+				|| (medicationName.matches(".*\\d.*") && medicationName.length() == 1)) {
+			request.setAttribute("medicationAlert", "no");
 			RequestDispatcher req = request.getRequestDispatcher("medicationNote.jsp");
 			req.include(request, response);
 		} else {
-			Statement stmt = null;
-			Connection c = null;
-			c = medManager.getConnection();
 
 			try {
-				// System.out.println("1 Hello it is ");
-				stmt = c.createStatement();
-				stmt.executeUpdate(
-						"INSERT INTO MEDTABLE (medicationName, dose, time, day, notes, meridian) " + "VALUES ('" + medicationName
-								+ "'," + dose + "," + time + ",'" + day + "','" + notes + "','" + meridian+ "')",
-						Statement.RETURN_GENERATED_KEYS);
+				medManager.stmt.executeUpdate("INSERT INTO MEDTABLE (medicationName, dose, time, day, notes, meridian) "
+						+ "VALUES ('" + medicationName + "'," + dose + "," + time + ",'" + day + "','" + notes + "','"
+						+ meridian + "')", Statement.RETURN_GENERATED_KEYS);
 
-				// get the ID of the row in medtable where insert took place.
-				ResultSet tmpR = stmt.getGeneratedKeys();
+				ResultSet tmpR = medManager.stmt.getGeneratedKeys();
 				medId = 0;
 				if (tmpR.next()) {
+					// Get the ID of the row in medtable where insert took place.
 					medId = tmpR.getInt(1);
 				}
 
-				// insert this id in REGISTRATIONTWO table
-				// String username = (String) request.getAttribute("username");
-				// System.out.println("2 hello it is " + username + " " + medId);
-				String query = "SELECT * FROM REGISTRATIONTWO WHERE username='" + username +"'";
+				// Using username to select user specific details
+				String query = "SELECT * FROM REGISTRATIONTWO WHERE username='" + username + "'";
+				ResultSet tmpR2 = medManager.stmt.executeQuery(query);
 
-				ResultSet tmpR2 = stmt.executeQuery(query);
-
-				// find the empty medicine column for this user. there will be only one row for
-				// this user.
 				String updateString = "";
 				if (tmpR2.next()) {
-					if (tmpR2.getString("M1") == null) {
-						updateString += "M1 = " + medId;
-					} else if (tmpR2.getString("M2") == null) {
-						updateString += "M2 = " + medId;
-					} else if (tmpR2.getString("M3") == null) {
-						updateString += "M3 = " + medId;
-					}
+					updateString = "";
 				}
-				
+
+				// Retreiving user details for sending to redirected page
 				first = tmpR2.getString("first");
 				email = tmpR2.getString("emailaddress");
 				contact = tmpR2.getString("contact");
 				username = tmpR2.getString("username");
 
-				// execute update command to insert this medication id in the registrationtwo
-				// table.
-				stmt.executeUpdate("UPDATE REGISTRATIONTWO SET " + updateString + " WHERE username ='" + username + "'");
-				timeTypeMap.put(medId, meridian);
-				/*
-				 * int i = 0; while (tmpR.next()) { i += 1; System.out.println("2 Hello it is "
-				 * + tmpR.getInt(i)); }
-				 */
+				// Creating update string to update in table entry
+				updateString = tmpR2.getString("M1") + medId + ",";
 
-				// stmt = c.createStatement();
-				// ResultSet tmpRs = stmt.executeQuery("SELECT LAST_INSERT_ID() as last_id");
-				// System.out.println("3 Hello it is " + tmpRs.getString("last_id"));
-				c.close();
-				request.setAttribute("timeTypeMap", timeTypeMap);
-				response.sendRedirect("dashboard.jsp?first="+first+"&email="+email+"&contact="+contact+"&username="+username);
+				// Execute update command to insert this medication id in the registrationtwo
+				// table.
+				medManager.stmt.executeUpdate(
+						"UPDATE REGISTRATIONTWO SET M1 = '" + updateString + "' WHERE username ='" + username + "'");
+
+				tmpR2.close();
+				tmpR.close();
+				response.sendRedirect("dashboard.jsp?first=" + first + "&email=" + email + "&contact=" + contact
+						+ "&username=" + username);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			//System.out.println("time " + mysqlTime + timeType);
-			//System.out.println(timeTypeMap.get(medId) + "medd");
-
-			
-//			RequestDispatcher req = request.getRequestDispatcher("dashboard.jsp");
-//			req.forward(request, response);
 		}
 	}
 
