@@ -44,11 +44,9 @@ try {
 	}
 
 	st.executeUpdate("UPDATE REGISTRATIONTWO SET A1 = '" + updateString + "' WHERE username='" + username + "'");
-	RequestDispatcher rd = request.getRequestDispatcher("appForm.jsp");
+	RequestDispatcher rd = request.getRequestDispatcher("appDisplay.jsp");
 	rd.forward(request, response);
 	tmpR2.close();
-	//st.close();
-	//con.close();
 
 } catch (Exception e) {
 	System.out.print(e);

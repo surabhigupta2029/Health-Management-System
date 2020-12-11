@@ -52,7 +52,7 @@ public class regCheck extends HttpServlet {
 					// If getInt() == 1, there is an exact record already existing
 					if (resultSet.getInt(1) == 1) {
 						isPresent = true;
-						request.setAttribute("alertMessage", "no");
+						request.setAttribute("alertMessage", "exists");
 						resultSet.close();
 						RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 						req.forward(request, response);
@@ -69,25 +69,26 @@ public class regCheck extends HttpServlet {
 			}
 
 			// Check if information entered is of valid type
+			// Else if invalid, send alert messages
 			boolean isValid = false;
 			if (address.contains("@")) {
 				if (contact.length() == 10) {
 					if (username.length() >= 5 && password.length() >= 5) {
 						isValid = true;
 					} else {
-						request.setAttribute("alertMessage", "no");
+						request.setAttribute("alertMessage", "len");
 						RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 						req.forward(request, response);
 					}
 				} else {
-					request.setAttribute("alertMessage", "no");
+					request.setAttribute("alertMessage", "contact");
 					RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 					req.forward(request, response);
 				}
 
 			} else {
 				isValid = false;
-				request.setAttribute("alertMessage", "no");
+				request.setAttribute("alertMessage", "email");
 				RequestDispatcher req = request.getRequestDispatcher("register.jsp");
 				req.forward(request, response);
 

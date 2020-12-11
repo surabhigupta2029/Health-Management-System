@@ -2,6 +2,12 @@
     <wb-module deploy-name="Health_Management">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
+        <dependent-module archiveName="activation.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/C:/Users/surab/Downloads/jaf-1_1_1/jaf-1.1.1/activation.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="javax.mail.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/C:/Users/surab/Downloads/javax.mail.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="java-output-path" value="/Health_Management/build/classes"/>
         <property name="context-root" value="Health_Management"/>
     </wb-module>

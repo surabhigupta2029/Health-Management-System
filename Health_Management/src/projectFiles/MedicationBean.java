@@ -1,10 +1,16 @@
 package projectFiles;
 
+/**
+ * Class: MedicationBean.java
+ * Purpose: This class encapsulates all the medication note objects into a single object,
+ * that can be set() and get() from anywhere
+ */
+
 public class MedicationBean {
 	String medicationName, dose, time, notes, meridian;
-	String id;
-	//Getters
+	String id, day;
 	
+	//Getters
 	public String getID() {
 		return id;
 	}
@@ -29,8 +35,11 @@ public class MedicationBean {
 		return meridian;
 	}
 	
-	//Setters
+	public String getDay() {
+		return day;
+	}
 	
+	//Setters
 	public void setID(String id) {
 		this.id = id;
 	}
@@ -53,5 +62,8 @@ public class MedicationBean {
 	
 	public void setMeridian(String meridian) {
 		this.meridian = meridian;
+	}
+	public void setDay(String day) {
+		this.day = day;
 	}
 }

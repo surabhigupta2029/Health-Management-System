@@ -1,5 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+	
+<%-- Class: navbar.jsp --%>
+<%-- Purpose: builds the navbar for the website to be included on dashboard --%>
+
 <!DOCTYPE html>
 <html>
 <head>

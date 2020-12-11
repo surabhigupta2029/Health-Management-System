@@ -46,11 +46,9 @@ try {
 
 	st.executeUpdate("UPDATE REGISTRATIONTWO SET M1 = '" + updateString + "' WHERE username='" + username + "'");
 
-	RequestDispatcher rd = request.getRequestDispatcher("medForm.jsp");
+	RequestDispatcher rd = request.getRequestDispatcher("medicationDisplay.jsp");
 	rd.forward(request, response);
 	tmpR2.close();
-	//st.close();
-	//con.close();
 
 } catch (Exception e) {
 	System.out.print(e);

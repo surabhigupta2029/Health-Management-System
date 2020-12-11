@@ -10,8 +10,8 @@
 
 <%-- Class: dashboard.jsp --%>
 <%-- Purpose: This is the patient's personal dashboard, where he/she can add medication and appointment notes.  --%>
-<%--These notes will be displayed and can also be deleted on the same page. Moreover, the dashboard displays the  --%>
-<%--logged in patient's personal details. --%>
+<%-- These notes will be displayed and can also be deleted on the same page. Moreover, the dashboard displays the  --%>
+<%-- logged in patient's personal details. --%>
 
 
 <!DOCTYPE html>
@@ -37,7 +37,8 @@ img {
 
 h3 {
 	text-align: center;
-	margin: 0px auto; display; block;
+	margin: 0px auto;
+	display: block;
 	font-family: 'Poppins', sans-serif;
 }
 
@@ -55,7 +56,8 @@ h2 {
 }
 
 .note-titles th {
-	text-align: center; display; block;
+	text-align: center;
+	display: block;
 	vertical-align: middle;
 	font-family: 'Poppins', sans-serif;
 	font-weight: bold;
@@ -97,11 +99,6 @@ iframe {
 	height: 10px;
 	width: 100%;
 	color: orange;
-}
-
-.holder {
-	/* 	background-color: lightblue; */
-	
 }
 
 .medTitle {
@@ -155,19 +152,16 @@ a.appButton:hover, a.appButton:active {
 	background-color: green;
 	color: white;
 }
+
+table.details {
+	background-color: #d6f5f5;
+}
 </style>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 <title>Healthcare Dashboard</title>
 
 </head>
 <jsp:include page="navbar.jsp" />
-
-<script>
-	function foo() {
-		alert("Submit button clicked!");
-	}
-</script>
-
 <body>
 	<%
 		List<RegistrationBean> list;
@@ -182,30 +176,42 @@ a.appButton:hover, a.appButton:active {
 	list = (List<RegistrationBean>) request.getAttribute("list");
 	%>
 
-	<%--User's personal information --%>
+	<%--User's personal information and doctor information --%>
 	<div class="userInfo-container">
 		<img src="img/Logo.png" name="pic" height="200" width="200" />
-
+		<div>
+			<h2 style="font-size: 4vh; font-size: bold; text-align: center;">
+				Welcome
+				<%=first%>!
+			</h2>
+		</div>
+		<br />
 		<c:if test="${ not empty list }">
-			<table style="width: 100%">
+			<table class="details" style="width: 100%">
 				<c:forEach items="${list}" var="record">
 					<tr class="td-titles">
-						<td style="font-size: 3vh; text-align: center;">Welcome <%=first%>!
-						</td>
+
 					</tr>
 					<tr>
 						<td>Personal Details</td>
+						<td>Doctor's Name: Dr. Smith</td>
 					</tr>
 					<tr>
 						<td>Email address: <%=email%></td>
+						<td>Phone Number: 123-456-7890</td>
 					</tr>
 					<tr>
 						<td>Emergency contact: <%=contact%></td>
+						<td>E-mail: dr_smith@gmail.com</td>
 					</tr>
 				</c:forEach>
 			</table>
 		</c:if>
+
 	</div>
+
+	<br />
+	<br />
 
 	<%--All medication and appointment information --%>
 	<%--Contains the buttons to create notes and even displays them --%>
@@ -232,13 +238,17 @@ a.appButton:hover, a.appButton:active {
 			<tr>
 				<td class="td-titles" style="background-color: #D6F8E0;">
 					<%
+						
 					%> <iframe align="center" frameBorder="0"
-						src="medForm.jsp?username=<%=username%>" width="650" height="300"></iframe>
+						src="medicationDisplay.jsp?username=<%=username%>" width="650"
+						height="300"></iframe>
 				</td>
 				<td class="td-titles" style="background-color: #C8F69B;">
 					<%
-					%><iframe src="appForm.jsp?username=<%=username%>" align="center"
-						frameBorder="0" width="650" height="300"> </iframe>
+						
+					%><iframe src="appDisplay.jsp?username=<%=username%>"
+						align="center" frameBorder="0" width="650" height="300">
+					</iframe>
 				</td>
 			</tr>
 		</table>

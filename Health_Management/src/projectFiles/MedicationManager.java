@@ -13,6 +13,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
+import javax.mail.*;
+import javax.mail.internet.*;
+import javax.activation.*;
 
 /**
  * Class: MedicationManager.java Purpose: Used to manage the medications using
@@ -82,6 +85,7 @@ public class MedicationManager extends HttpServlet {
 			if (as.next()) {
 				reqDay = "";
 			}
+			String destEmail = as.getString("emailaddress");
 
 			// Retrieving medication IDs and splitting to create array
 			String m = as.getString("M1");
@@ -95,9 +99,6 @@ public class MedicationManager extends HttpServlet {
 			TreeMap<Integer, List<MedicationBean>> result = new TreeMap<Integer, List<MedicationBean>>();
 			List<MedicationBean> medList = new ArrayList<MedicationBean>();
 			int idKey = 1;
-
-			// While a record exists, find the medication ntoe details and store in a
-			// treeMap
 			while (medrs.next()) {
 				reqDay = medrs.getString("day");
 				String reqID = medrs.getString("id");
@@ -116,12 +117,94 @@ public class MedicationManager extends HttpServlet {
 						idKey++;
 					}
 				}
+				request.setAttribute("emailAlert", "no");
+
+			}
+
+			if (day.equals("Email")) {
+				int idx = 0;
+				TreeMap<Integer, List<MedicationBean>> emailMap = new TreeMap<Integer, List<MedicationBean>>();
+				List<MedicationBean> emailList = new ArrayList<MedicationBean>();
+				ResultSet e = medManager.stmt.executeQuery(medQuery);
+				while (e.next()) {
+					reqDay = e.getString("day");
+					String reqID = e.getString("id");
+					if (idList.contains(reqID)) {
+						MedicationBean medDetails = new MedicationBean();
+						String medTime = e.getString("time");
+						medDetails.setID(e.getString("id"));
+						medDetails.setMedicationName(e.getString("medicationName"));
+						medDetails.setDose(e.getString("dose"));
+						medDetails.setMeridian(e.getString("meridian"));
+						medDetails.setTime(medTime);
+						medDetails.setNotes(e.getString("notes"));
+						medDetails.setDay(reqDay);
+						emailList.add(medDetails);
+						emailMap.put(idKey, emailList);
+						idKey++;
+					}
+				}
+				String pass = "";
+				for (Map.Entry<Integer, List<MedicationBean>> entry : emailMap.entrySet()) {
+					pass += ("\n -------------------------------- \n" + "Day: " + entry.getValue().get(idx).getDay() + "\n"
+							+"Medication: " + entry.getValue().get(idx).getMedicationName() + "\n" + "Dose:  "
+							+ entry.getValue().get(idx).getDose() + " mg\n" + "Time:  "
+							+ entry.getValue().get(idx).getTime() + entry.getValue().get(idx).getMeridian() + "\n"
+							+ "Notes: " + entry.getValue().get(idx).getNotes());
+					idx++;
+				}
+				// Recipient's email ID needs to be mentioned.
+				String to = destEmail;
+
+				// Assuming you are sending email from localhost
+				String host = "smtp.gmail.com";
+
+				// Get system properties object
+				Properties properties = System.getProperties();
+
+				// Setup mail server
+				properties.setProperty("mail.transport.protocol", "smtp");
+				properties.put("mail.smtp.host", host);
+				properties.put("mail.smtp.auth", "true");
+				properties.put("mail.smtp.port", "587");
+				properties.put("mail.smtp.starttls.enable", "true");
+		
+				// Get the default Session object.
+				Session mailSession = Session.getDefaultInstance(properties, new Authenticator() {
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication("contactcare4today@gmail.com", "risvbrmjmvhmqybb");
+					}
+				});
+
+				try {
+					// Create a default MimeMessage object.
+					MimeMessage message = new MimeMessage(mailSession);
+
+					// Set From: header field of the header.
+					message.setFrom(new InternetAddress("contactcare4today@gmail.com"));
+
+					// Set To: header field of the header.
+					message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+					// Set Subject: header field
+					message.setSubject("Care4Today: Medications List!");
+
+					// Now set the actual message
+					message.setText("Hello! Care4Today has sent you your latest medications list:" + pass
+							+ "\n\n\nHope you have a great day!\nThe Care4Today Team");
+
+					// Send message
+					Transport.send(message);
+					request.setAttribute("emailAlert", "yes");
+					// System.out.println("SENT");
+				} catch (MessagingException mex) {
+					mex.printStackTrace();
+				}
 
 			}
 
 			// Forwarding the treemap and then redirecting back
 			request.setAttribute("data", result);
-			RequestDispatcher rd = request.getRequestDispatcher("medForm.jsp");
+			RequestDispatcher rd = request.getRequestDispatcher("medicationDisplay.jsp");
 			rd.forward(request, response);
 
 		} catch (Exception e) {

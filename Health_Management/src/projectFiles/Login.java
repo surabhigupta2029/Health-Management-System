@@ -12,7 +12,8 @@ import java.util.*;
 
 /**
  * Class: Login.java
- * Purpose: Performs doGet() and doPost() methods specifically for login page. 
+ * Purpose: Performs doGet() and doPost() methods specifically for login page, and makes sure
+ * only existing users can log in.
  */
 
 public class Login extends HttpServlet {
@@ -29,6 +30,9 @@ public class Login extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
 	 *      response)
+	 *      
+	 *      This method will be used to retrieve information from the database
+
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -46,6 +50,8 @@ public class Login extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
+	 *      
+	 *      This method will be used to post information to the database
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -89,9 +95,13 @@ public class Login extends HttpServlet {
 						break;
 					}
 				}
+				
+					request.setAttribute("loginAlert", "exists");
+					RequestDispatcher req = request.getRequestDispatcher("login.jsp");
+					req.include(request, response);
+				
 				rs.close();
-				RequestDispatcher req = request.getRequestDispatcher("login.jsp");
-				req.include(request, response);
+				
 
 			} catch (Exception e) {
 				System.err.println("Login Got an exception! ");

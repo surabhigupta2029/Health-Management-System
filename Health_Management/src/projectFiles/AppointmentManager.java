@@ -4,6 +4,14 @@ import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,11 +23,11 @@ import java.util.*;
 import java.util.Date;
 
 public class AppointmentManager extends HttpServlet {
-	
-	/** 
-	 * Class: AppointmentManager.java
-	 * Purpose: Used to manage the appointments using doGet() and doPost() HTTP methods to respectively
-	 * get appointment entries and post appointment entries from database.
+
+	/**
+	 * Class: AppointmentManager.java Purpose: Used to manage the appointments using
+	 * doGet() and doPost() HTTP methods to respectively get appointment entries and
+	 * post appointment entries from database.
 	 */
 
 	private static final long serialVersionUID = 1L;
@@ -49,8 +57,8 @@ public class AppointmentManager extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String appDay = "";
-		
-		//Get parameter for the day button clicked in dashboard
+
+		// Get parameter for the day button clicked in dashboard
 		if (request.getParameter("Sunday") != null) {
 			appDay = "Sunday";
 		} else if (request.getParameter("Monday") != null) {
@@ -65,6 +73,8 @@ public class AppointmentManager extends HttpServlet {
 			appDay = "Friday";
 		} else if (request.getParameter("Saturday") != null) {
 			appDay = "Saturday";
+		} else if (request.getParameter("Email") != null) {
+			appDay = "Email";
 		}
 		String username = request.getParameter("username");
 
@@ -81,6 +91,7 @@ public class AppointmentManager extends HttpServlet {
 			if (as.next()) {
 				reqDay = "";
 			}
+			String destEmail = as.getString("emailaddress");
 
 			// Retrieving appointment IDs and splitting to create array
 			String a = as.getString("A1");
@@ -109,16 +120,94 @@ public class AppointmentManager extends HttpServlet {
 						appMap.put(rs.getString("id"), appList);
 					}
 				}
+				request.setAttribute("emailAlert", "no");
 
 			}
 
+			// If user input is "Email", then start process of creating email
+			if (appDay.equals("Email")) {
+				int idx = 0;
+				TreeMap<Integer, List<AppointmentBean>> emailMap = new TreeMap<Integer, List<AppointmentBean>>();
+				List<AppointmentBean> emailList = new ArrayList<AppointmentBean>();
+				ResultSet e = appManager.stmt.executeQuery(query);
+				while (e.next()) {
+					reqDay = e.getString("day");
+					String reqID = e.getString("id");
+					if (idList.contains(reqID)) {
+						AppointmentBean appDetails = new AppointmentBean();
+						String medTime = e.getString("timing");
+						appDetails.setAppName(e.getString("appName"));
+						appDetails.setMeridian(e.getString("meridian"));
+						appDetails.setTiming(e.getString("timing"));
+						appDetails.setNotes(e.getString("notes"));
+						appDetails.setDay(reqDay);
+						emailList.add(appDetails);
+						emailMap.put(Integer.parseInt(reqID), emailList);
+					}
+				}
+				// Creating the string to pass in email body
+				String pass = "";
+				for (Map.Entry<Integer, List<AppointmentBean>> entry : emailMap.entrySet()) {
+					pass += ("\n ------------------------------------- \n" + "Day: "
+							+ entry.getValue().get(idx).getDay() + "\n" + "Appointment: "
+							+ entry.getValue().get(idx).getAppName() + "\n" + "Time:  "
+							+ entry.getValue().get(idx).getTiming() + entry.getValue().get(idx).getMeridian() + "\n"
+							+ "Notes: " + entry.getValue().get(idx).getNotes());
+					idx++;
+				}
+				// Recipient's email ID needs to be mentioned.
+				String to = destEmail;
+
+				// Assuming you are sending email from localhost
+				String host = "smtp.gmail.com";
+
+				// Get system properties object
+				Properties properties = System.getProperties();
+
+				// Setup mail server
+				properties.setProperty("mail.transport.protocol", "smtp");
+				properties.put("mail.smtp.host", host);
+				properties.put("mail.smtp.auth", "true");
+				properties.put("mail.smtp.port", "587");
+				properties.put("mail.smtp.starttls.enable", "true");
+
+				// Get the default Session object.
+				Session mailSession = Session.getDefaultInstance(properties, new Authenticator() {
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication("contactcare4today@gmail.com", "risvbrmjmvhmqybb");
+					}
+				});
+
+				try {
+					// Create a default MimeMessage object.
+					MimeMessage message = new MimeMessage(mailSession);
+
+					// Set From: header field of the header.
+					message.setFrom(new InternetAddress("contactcare4today@gmail.com"));
+
+					// Set To: header field of the header.
+					message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+					
+					// Set Subject: header field
+					message.setSubject("Care4Today: Appointments List!");
+
+					// Now set the actual message
+					message.setText("Hello! Care4Today has sent you your latest appointments list:" + pass
+							+ "\n\n\nHope you have a great day!\nThe Care4Today Team");
+
+					// Send message
+					Transport.send(message);
+					request.setAttribute("emailAlert", "yes");
+				} catch (MessagingException mex) {
+					mex.printStackTrace();
+				}
+			}
 			// Forwarding the treemap and then redirecting back
 			request.setAttribute("appData", appMap);
-			RequestDispatcher rd = request.getRequestDispatcher("appForm.jsp");
+			RequestDispatcher rd = request.getRequestDispatcher("appDisplay.jsp");
 			rd.forward(request, response);
 
 		} catch (Exception e) {
-
 			System.err.println(" App Manager Got an exception! ");
 			System.err.println(e.getMessage());
 		}
@@ -163,8 +252,7 @@ public class AppointmentManager extends HttpServlet {
 			request.setAttribute("appointmentAlert", "no");
 			RequestDispatcher req = request.getRequestDispatcher("appNote.jsp");
 			req.include(request, response);
-		}
-		else {
+		} else {
 
 			try {
 				appManager.stmt.executeUpdate(
@@ -192,7 +280,7 @@ public class AppointmentManager extends HttpServlet {
 				email = tmpR2.getString("emailaddress");
 				contact = tmpR2.getString("contact");
 				username = tmpR2.getString("username");
-				
+
 				// Creating update string to update in table entry
 				updateString = tmpR2.getString("A1") + appId + ",";
 
@@ -200,7 +288,6 @@ public class AppointmentManager extends HttpServlet {
 				// table.
 				appManager.stmt.executeUpdate(
 						"UPDATE REGISTRATIONTWO SET A1 = '" + updateString + "'  WHERE username ='" + username + "'");
-				appTimeTypeMap.put(appId, meridian);
 
 				tmpR2.close();
 				tmpR.close();
