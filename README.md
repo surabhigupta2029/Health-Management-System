@@ -1,3 +1,7 @@
+<p align=center>
+<a href="https://imgur.com/ydfsZ25"><img src="https://i.imgur.com/ydfsZ25.png" title="source: imgur.com" /></a>
+</p>
+
 # Care4Today #
 *A healthcare manager for the elderly* \
 *YouTube Demo:* [link](https://www.youtube.com/watch?v=gLVQ4oGN3tA&feature=youtu.be)
